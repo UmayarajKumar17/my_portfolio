@@ -97,7 +97,7 @@ const SkillsSection: React.FC = () => {
       icon: <Server size={24} className="text-ai-purple pulse-animation" />,
       skills: [
         { name: "Docker", level: 85, color: "#4D96FF", icon: <Server size={16} /> },
-        { name: "AWS/GCP", level: 80, color: "#FFD93D", icon: <Globe size={16} /> },
+        { name: "VS Code", level: 80, color: "#FFD93D", icon: <Globe size={16} /> },
         { name: "Github", level: 80, color: "#FF6B6B", icon: <Layers size={16} /> },
         { name: "Git", level: 90, color: "#6BCB77", icon: <Database size={16} /> },
         { name: "Jupyter", level: 95, color: "#9B87F5", icon: <Database size={16} /> }
