@@ -145,7 +145,7 @@ const HeroSection: React.FC = () => {
                 View Projects
               </a>
               <a 
-                href="/resume/Umayaraj-Kumar-CV.pdf" 
+                href={`${import.meta.env.BASE_URL}resume/Umayaraj-Kumar-CV.pdf`}
                 download
                 className="px-5 py-3 flex items-center gap-2 border border-white/20 hover:border-ai-purple text-white rounded-lg font-medium transition-all duration-300 hover:bg-white/5 hover:scale-105 hover:shadow-lg hover:shadow-ai-purple/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-background focus:outline-none group"
               >
@@ -161,7 +161,7 @@ const HeroSection: React.FC = () => {
               <div className="absolute -inset-0.5 bg-gradient-to-r from-ai-purple to-ai-darkPurple rounded-2xl blur-xl opacity-50 animate-pulse-slow hover:opacity-70 transition-opacity"></div>
               <div className="relative w-60 h-60 sm:w-72 sm:h-72 md:w-80 md:h-80 rounded-2xl overflow-hidden border-2 border-white/10 glass-morphism hover:border-white/20 transition-all duration-300">
                 <img 
-                  src="/lovable-uploads/umayaraj-photo.jpg"
+                  src={`${import.meta.env.BASE_URL}lovable-uploads/umayaraj-photo.jpg`}
                   alt="Umayaraj Kumar"
                   className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                 />
