@@ -1,25 +1,41 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Orbit, ArrowRightLeft, Compass } from 'lucide-react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { Hexagon, ZapIcon, Scan, ShieldCheck, ArrowRightLeft } from 'lucide-react';
 
 const LoadingScreen = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
+  const controls = useAnimation();
   
-  // Generate random node positions
-  const generateNodes = () => {
-    return Array.from({ length: 15 }).map(() => ({
-      x: Math.random() * 80 + 10, // 10-90% of container width
-      y: Math.random() * 80 + 10, // 10-90% of container height
-      size: Math.random() * 2 + 3, // 3-5px
-      pulseDelay: Math.random() * 2,
-      orbitSpeed: Math.random() > 0.5 ? 1 : -1,
+  // Generate hexagons for the background grid
+  const generateHexagons = () => {
+    return Array.from({ length: 40 }).map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 30 + 10, // 10-40px
+      rotation: Math.random() * 180,
+      delay: Math.random() * 2,
+      duration: Math.random() * 3 + 2, // 2-5s
     }));
   };
 
-  const nodes = generateNodes();
+  const hexagons = generateHexagons();
 
-  // Track mouse position for interactive effect
+  // Generate data streams
+  const generateDataStreams = () => {
+    return Array.from({ length: 15 }).map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      length: Math.random() * 100 + 50, // 50-150px
+      angle: Math.random() * 360,
+      speed: Math.random() * 2 + 1,
+      opacity: Math.random() * 0.5 + 0.2,
+    }));
+  };
+
+  const dataStreams = generateDataStreams();
+
+  // Track mouse position for interactive effects
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!containerRef.current) return;
@@ -43,35 +59,21 @@ const LoadingScreen = () => {
     };
   }, []);
 
-  // Calculate connections between nodes (only create connections for nodes that are nearby)
-  const connections = [];
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const dx = nodes[i].x - nodes[j].x;
-      const dy = nodes[i].y - nodes[j].y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      // Only connect nodes that are within a certain distance
-      if (distance < 30) {
-        connections.push({
-          id: `${i}-${j}`,
-          x1: nodes[i].x,
-          y1: nodes[i].y,
-          x2: nodes[j].x,
-          y2: nodes[j].y,
-          distance,
-        });
-      }
-    }
-  }
-
-  // Loading progress states
+  // Loading progress states with holographic verification concept
   const [loadingPhase, setLoadingPhase] = useState(0);
   const loadingTexts = [
-    "Mapping Neural Pathways",
-    "Structuring Dimensional Gateways",
-    "Calibrating Quantum Resonance",
-    "Preparing Holographic Interface"
+    "Initializing Holographic Interface",
+    "Scanning System Parameters",
+    "Validating Security Protocol",
+    "Activating Neural Network"
+  ];
+
+  // Configure holographic icons for each phase
+  const phaseIcons = [
+    <Hexagon className="w-5 h-5 text-ai-purple" key="hexagon" />,
+    <Scan className="w-5 h-5 text-ai-purple" key="scan" />,
+    <ShieldCheck className="w-5 h-5 text-ai-purple" key="shield" />,
+    <ZapIcon className="w-5 h-5 text-ai-purple" key="zap" />
   ];
 
   useEffect(() => {
@@ -82,392 +84,397 @@ const LoadingScreen = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Create animated code snippet array
+  const [codeLines, setCodeLines] = useState([]);
+  
+  useEffect(() => {
+    // Generate random code-like lines
+    const generateCodeLine = () => {
+      const length = Math.floor(Math.random() * 30) + 5;
+      const symbols = '{}[]()<>.,;:+-*/=&|!?_$#@%^~`"\'\\';
+      const indent = ' '.repeat(Math.floor(Math.random() * 8));
+      let line = indent;
+      
+      // Add a chance for keywords
+      const keywords = ['function', 'const', 'let', 'if', 'for', 'while', 'return', 'import', 'export', 'class', 'async', 'await'];
+      
+      if (Math.random() > 0.7) {
+        line += keywords[Math.floor(Math.random() * keywords.length)] + ' ';
+      }
+      
+      // Generate random characters for the line
+      for (let i = 0; i < length; i++) {
+        const rand = Math.random();
+        if (rand < 0.3) {
+          // Add a letter
+          line += String.fromCharCode(97 + Math.floor(Math.random() * 26));
+        } else if (rand < 0.6) {
+          // Add a symbol
+          line += symbols[Math.floor(Math.random() * symbols.length)];
+        } else {
+          // Add a space
+          line += ' ';
+        }
+      }
+      
+      return line;
+    };
+    
+    // Create initial code lines
+    const initialLines = Array.from({ length: 30 }, generateCodeLine);
+    setCodeLines(initialLines);
+    
+    // Update code lines periodically
+    const intervalId = setInterval(() => {
+      setCodeLines(prev => {
+        const newLines = [...prev];
+        const indexToChange = Math.floor(Math.random() * newLines.length);
+        newLines[indexToChange] = generateCodeLine();
+        return newLines;
+      });
+    }, 300);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden" ref={containerRef}>
-      <div className="relative w-full h-full flex flex-col items-center justify-center">
-        {/* Purple nebula background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-radial from-purple-900/10 via-background to-background"></div>
-          
-          {/* Dynamic light source that follows mouse */}
-          <motion.div 
-            className="absolute w-64 h-64 rounded-full bg-ai-purple/5 blur-3xl"
-            animate={{
-              left: `${mousePosition.x}%`,
-              top: `${mousePosition.y}%`,
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              left: { type: "spring", stiffness: 50, damping: 20 },
-              top: { type: "spring", stiffness: 50, damping: 20 },
-              scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
-            }}
-            style={{ transform: "translate(-50%, -50%)" }}
-          />
-        </div>
+    <div className="fixed inset-0 z-50 bg-background overflow-hidden" ref={containerRef}>
+      {/* Holographic background layer */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-radial from-purple-900/10 via-background to-background"></div>
         
-        {/* Constellation network */}
+        {/* Hexagon grid layer */}
         <div className="absolute inset-0 overflow-hidden">
-          <svg width="100%" height="100%" className="absolute inset-0">
-            {/* Connection lines between nodes */}
-            {connections.map((connection) => (
-              <motion.line
-                key={connection.id}
-                x1={`${connection.x1}%`}
-                y1={`${connection.y1}%`}
-                x2={`${connection.x2}%`}
-                y2={`${connection.y2}%`}
-                stroke="rgba(147, 51, 234, 0.2)"
-                strokeWidth="1"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ 
-                  pathLength: 1, 
-                  opacity: [0.1, 0.3, 0.1],
-                  strokeWidth: [1, connection.distance > 20 ? 0.5 : 1.5, 1]
-                }}
-                transition={{ 
-                  pathLength: { duration: 2, ease: "easeInOut" },
-                  opacity: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-                  strokeWidth: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-                }}
-              />
-            ))}
-            
-            {/* Interactive line that follows mouse */}
-            {nodes.map((node, i) => {
-              // Only connect a few nodes to the mouse for performance
-              if (i % 3 !== 0) return null;
-              
-              const dx = node.x - mousePosition.x;
-              const dy = node.y - mousePosition.y;
-              const distance = Math.sqrt(dx * dx + dy * dy);
-              
-              // Only connect nodes within a certain distance to the mouse
-              if (distance > 30) return null;
-              
-              return (
-                <motion.line
-                  key={`mouse-${i}`}
-                  x1={`${node.x}%`}
-                  y1={`${node.y}%`}
-                  x2={`${mousePosition.x}%`}
-                  y2={`${mousePosition.y}%`}
-                  stroke="rgba(147, 51, 234, 0.3)"
-                  strokeWidth="1"
-                  strokeDasharray="3,3"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: 0.5,
-                    strokeDashoffset: [0, -20]
-                  }}
-                  transition={{ 
-                    opacity: { duration: 0.3 },
-                    strokeDashoffset: { 
-                      duration: 2, 
-                      repeat: Infinity, 
-                      ease: "linear" 
-                    }
-                  }}
-                />
-              );
-            })}
-          </svg>
-          
-          {/* Constellation nodes */}
-          {nodes.map((node, i) => (
+          {hexagons.map((hexagon, i) => (
             <motion.div
-              key={i}
-              className="absolute rounded-full bg-ai-purple"
+              key={`hex-${i}`}
+              className="absolute border border-ai-purple/20"
               style={{
-                left: `${node.x}%`,
-                top: `${node.y}%`,
-                width: `${node.size}px`,
-                height: `${node.size}px`,
-                transform: 'translate(-50%, -50%)',
+                left: `${hexagon.x}%`,
+                top: `${hexagon.y}%`,
+                width: `${hexagon.size}px`,
+                height: `${hexagon.size}px`,
+                transform: `translate(-50%, -50%) rotate(${hexagon.rotation}deg)`,
+                opacity: 0.1,
               }}
               animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.3, 0.7, 0.3],
-                boxShadow: [
-                  '0 0 5px rgba(147, 51, 234, 0.3)',
-                  '0 0 10px rgba(147, 51, 234, 0.6)',
-                  '0 0 5px rgba(147, 51, 234, 0.3)'
+                opacity: [0.05, 0.2, 0.05],
+                scale: [1, 1.1, 1],
+                borderColor: [
+                  'rgba(147, 51, 234, 0.1)',
+                  'rgba(147, 51, 234, 0.3)',
+                  'rgba(147, 51, 234, 0.1)'
                 ]
               }}
               transition={{
-                duration: 3,
-                delay: node.pulseDelay,
+                duration: hexagon.duration,
+                delay: hexagon.delay,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-            />
+            >
+              <Hexagon
+                className="absolute inset-0 w-full h-full text-ai-purple/20"
+              />
+            </motion.div>
           ))}
-          
-          {/* Small orbital particles around some nodes */}
-          {nodes.filter((_, i) => i % 3 === 0).map((node, i) => (
+        </div>
+        
+        {/* Data stream effects */}
+        <div className="absolute inset-0 overflow-hidden">
+          {dataStreams.map((stream, i) => (
             <motion.div
-              key={`orbit-${i}`}
-              className="absolute w-1 h-1 rounded-full bg-purple-300"
+              key={`stream-${i}`}
+              className="absolute bg-gradient-to-r from-transparent via-ai-purple/40 to-transparent"
               style={{
-                left: `${node.x}%`,
-                top: `${node.y}%`,
-                transformOrigin: 'center',
+                left: `${stream.x}%`,
+                top: `${stream.y}%`,
+                height: '1px',
+                width: `${stream.length}px`,
+                transform: `translate(-50%, -50%) rotate(${stream.angle}deg)`,
+                opacity: stream.opacity,
               }}
               animate={{
-                rotate: [0, 360 * node.orbitSpeed]
+                x: ['-100%', '100%'],
               }}
               transition={{
-                duration: 8,
+                duration: stream.speed * 5,
                 repeat: Infinity,
                 ease: "linear"
               }}
-            >
+            />
+          ))}
+        </div>
+        
+        {/* Interactive glow that follows mouse */}
+        <motion.div 
+          className="absolute w-96 h-96 rounded-full"
+          animate={{
+            left: `${mousePosition.x}%`,
+            top: `${mousePosition.y}%`,
+            background: [
+              'radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(0, 0, 0, 0) 70%)',
+              'radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, rgba(0, 0, 0, 0) 70%)',
+              'radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(0, 0, 0, 0) 70%)'
+            ]
+          }}
+          transition={{
+            left: { type: "spring", stiffness: 50, damping: 20 },
+            top: { type: "spring", stiffness: 50, damping: 20 },
+            background: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          }}
+          style={{ transform: "translate(-50%, -50%)" }}
+        />
+      </div>
+      
+      {/* Central holographic interface */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative w-full max-w-lg h-full max-h-[600px] flex flex-col items-center justify-center">
+          {/* Holographic display window */}
+          <div className="relative w-full h-[500px] border border-ai-purple/30 rounded-lg backdrop-blur-sm bg-black/20 overflow-hidden p-6">
+            {/* Animated corner accents */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-ai-purple"></div>
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-ai-purple"></div>
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-ai-purple"></div>
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-ai-purple"></div>
+            
+            {/* Scan line effect */}
+            <motion.div
+              className="absolute left-0 right-0 h-[1px] bg-ai-purple/50"
+              animate={{
+                top: ["0%", "100%", "0%"],
+                opacity: [0.3, 0.8, 0.3]
+              }}
+              transition={{
+                top: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                opacity: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              }}
+            />
+            
+            {/* Top status bar */}
+            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-r from-purple-900/50 via-ai-purple/30 to-purple-900/50 flex items-center px-3">
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 rounded-full bg-ai-purple animate-pulse"></div>
+                <span className="text-xs font-mono text-ai-purple">SYSTEM.BOOT</span>
+              </div>
+              <div className="ml-auto text-xs font-mono text-ai-purple/70">
+                {new Date().toISOString().split('T')[0]}
+              </div>
+            </div>
+            
+            {/* Main content area with holographic code display */}
+            <div className="h-full pt-10 pb-10 flex">
+              {/* Left code display - animated lines of code */}
+              <div className="w-1/2 overflow-hidden pr-2 opacity-70">
+                <motion.div 
+                  animate={{ y: [0, -1000] }} 
+                  transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                  className="font-mono text-[9px] text-ai-purple/90 leading-tight"
+                >
+                  {codeLines.map((line, i) => (
+                    <div key={i} className="whitespace-nowrap">{line}</div>
+                  ))}
+                </motion.div>
+              </div>
+              
+              {/* Right side - holographic visualization */}
+              <div className="w-1/2 flex flex-col items-center justify-center pl-2 border-l border-ai-purple/20">
+                {/* Holographic rotating elements */}
+                <div className="relative w-40 h-40">
+                  {/* Outer rotating ring */}
+                  <motion.div
+                    className="absolute w-full h-full rounded-full border border-ai-purple/30"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                  >
+                    {/* Dots on the ring */}
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <motion.div
+                        key={`dot-${i}`}
+                        className="absolute w-2 h-2 rounded-full bg-ai-purple"
+                        style={{
+                          top: '50%',
+                          left: '50%',
+                          transform: `rotate(${i * 45}deg) translateY(-20px) translateX(-1px)`,
+                        }}
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{ 
+                          duration: 2, 
+                          delay: i * 0.25, 
+                          repeat: Infinity,
+                          ease: "easeInOut" 
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                  
+                  {/* Middle rotating ring with a different direction */}
+                  <motion.div
+                    className="absolute w-28 h-28 rounded-full border border-ai-purple/40 left-1/2 top-1/2"
+                    style={{ transform: "translate(-50%, -50%)" }}
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                  />
+                  
+                  {/* Central holographic element for current phase */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <motion.div
+                      className="relative flex items-center justify-center w-20 h-20 rounded-full"
+                      animate={{
+                        boxShadow: [
+                          '0 0 20px rgba(147, 51, 234, 0.3)',
+                          '0 0 40px rgba(147, 51, 234, 0.6)',
+                          '0 0 20px rgba(147, 51, 234, 0.3)'
+                        ]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      {/* Animated phase icon */}
+                      <AnimatePresence mode="wait">
+                        <motion.div 
+                          key={loadingPhase}
+                          initial={{ scale: 0, opacity: 0, rotateY: -90 }}
+                          animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                          exit={{ scale: 0, opacity: 0, rotateY: 90 }}
+                          transition={{ duration: 0.5 }}
+                          className="text-ai-purple"
+                        >
+                          <motion.div
+                            animate={{ 
+                              scale: [1, 1.2, 1],
+                              rotate: [0, 5, 0, -5, 0]
+                            }}
+                            transition={{ 
+                              duration: 3, 
+                              repeat: Infinity,
+                              ease: "easeInOut" 
+                            }}
+                          >
+                            {phaseIcons[loadingPhase]}
+                          </motion.div>
+                        </motion.div>
+                      </AnimatePresence>
+                    </motion.div>
+                  </div>
+                </div>
+                
+                {/* Loading status display */}
+                <div className="mt-8 w-full">
+                  <div className="flex justify-between mb-2">
+                    <div className="text-xs text-ai-purple/70 font-mono">STATUS</div>
+                    <div className="text-xs text-ai-purple/70 font-mono">
+                      {loadingPhase + 1}/4
+                    </div>
+                  </div>
+                  
+                  {/* Loading progress indicators */}
+                  <div className="grid grid-cols-4 gap-1 mb-2">
+                    {[0, 1, 2, 3].map((phase) => (
+                      <motion.div
+                        key={`phase-${phase}`}
+                        className={`h-1 rounded-full ${phase <= loadingPhase ? 'bg-ai-purple' : 'bg-ai-purple/20'}`}
+                        animate={phase === loadingPhase ? {
+                          opacity: [0.7, 1, 0.7],
+                          scale: [1, 1.05, 1]
+                        } : {}}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Current process display */}
+                  <motion.div
+                    className="bg-black/30 border border-ai-purple/20 rounded p-2 font-mono"
+                    animate={{ 
+                      borderColor: [
+                        'rgba(147, 51, 234, 0.2)',
+                        'rgba(147, 51, 234, 0.5)',
+                        'rgba(147, 51, 234, 0.2)'
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={loadingPhase}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-sm text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-ai-purple to-purple-300"
+                      >
+                        {loadingTexts[loadingPhase]}
+                      </motion.div>
+                    </AnimatePresence>
+                    
+                    {/* Animated progress bar */}
+                    <motion.div
+                      className="h-1 mt-2 bg-black/40 rounded-full overflow-hidden"
+                      animate={{
+                        boxShadow: [
+                          'inset 0 0 5px rgba(147, 51, 234, 0.3)',
+                          'inset 0 0 10px rgba(147, 51, 234, 0.6)',
+                          'inset 0 0 5px rgba(147, 51, 234, 0.3)'
+                        ]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-purple-500 to-ai-purple"
+                        initial={{ width: "0%" }}
+                        animate={{ width: ["0%", "100%"] }}
+                        transition={{
+                          duration: 2.5,
+                          ease: "easeInOut",
+                          repeat: Infinity,
+                        }}
+                      />
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Bottom status bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-purple-900/50 via-ai-purple/30 to-purple-900/50 flex items-center px-3">
               <motion.div
-                className="absolute w-1 h-1 rounded-full bg-purple-300"
-                style={{
-                  left: '0',
-                  top: '-8px',
-                }}
+                className="flex items-center text-xs font-mono text-ai-purple/80"
                 animate={{
-                  opacity: [0.3, 0.7, 0.3]
+                  opacity: [0.7, 1, 0.7]
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-              />
-            </motion.div>
-          ))}
-        </div>
-        
-        {/* Centered dimensional portal */}
-        <div className="relative z-10">
-          {/* Outer glow */}
-          <motion.div 
-            className="absolute -inset-12 bg-ai-purple/10 rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          
-          {/* Portal rings */}
-          <div className="relative w-40 h-40 flex items-center justify-center">
-            {/* Rotating outer ring */}
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-ai-purple/30"
-              style={{ 
-                borderRadius: '50%',
-                borderStyle: 'dashed',
-                borderWidth: '1px'
-              }}
-              animate={{ rotate: 360 }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-            />
-            
-            {/* Middle ring with gradient effect */}
-            <motion.div
-              className="absolute w-32 h-32 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(147, 51, 234, 0) 70%)',
-              }}
-              animate={{ rotate: -180 }}
-              transition={{
-                duration: 15,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-            />
-            
-            {/* Inner portal with pulsing effect */}
-            <motion.div
-              className="relative w-24 h-24 rounded-full bg-gradient-to-br from-purple-900/30 to-background border border-ai-purple/20 flex items-center justify-center overflow-hidden"
-              animate={{
-                boxShadow: [
-                  'inset 0 0 15px rgba(147, 51, 234, 0.3)',
-                  'inset 0 0 30px rgba(147, 51, 234, 0.6)',
-                  'inset 0 0 15px rgba(147, 51, 234, 0.3)'
-                ]
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              {/* Crisscrossing energy beams */}
-              <motion.div
-                className="absolute w-full h-0.5 bg-ai-purple/30"
-                animate={{ rotate: [0, 180] }}
-                transition={{
-                  duration: 6,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-              />
-              <motion.div
-                className="absolute w-full h-0.5 bg-ai-purple/30"
-                animate={{ rotate: [90, 270] }}
-                transition={{
-                  duration: 6,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-              />
-              
-              {/* Central icon */}
-              <motion.div
-                animate={{
-                  scale: [0.9, 1.1, 0.9],
-                  rotate: [0, 10, 0, -10, 0],
-                  opacity: [0.7, 1, 0.7],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
               >
-                <div className="relative">
-                  <Compass className="w-8 h-8 text-ai-purple/90" />
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    animate={{
-                      boxShadow: [
-                        '0 0 5px rgba(147, 51, 234, 0.5)',
-                        '0 0 15px rgba(147, 51, 234, 0.8)',
-                        '0 0 5px rgba(147, 51, 234, 0.5)'
-                      ]
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                </div>
+                <ArrowRightLeft className="w-3 h-3 mr-1" />
+                <motion.span>
+                  Processing data stream...
+                </motion.span>
               </motion.div>
               
-              {/* Small floating particles within the portal */}
-              {[...Array(5)].map((_, i) => (
+              <div className="ml-auto">
                 <motion.div
-                  key={`particle-${i}`}
-                  className="absolute w-1 h-1 rounded-full bg-purple-300/70"
-                  initial={{
-                    x: Math.random() * 40 - 20,
-                    y: Math.random() * 40 - 20,
-                  }}
+                  className="text-xs font-mono text-ai-purple/70"
                   animate={{
-                    x: Math.random() * 40 - 20,
-                    y: Math.random() * 40 - 20,
-                    opacity: [0.3, 0.7, 0.3]
+                    opacity: [0.5, 1, 0.5]
                   }}
                   transition={{
-                    x: { duration: 3 + i, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" },
-                    y: { duration: 3 + i * 1.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" },
-                    opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
                   }}
-                />
-              ))}
-            </motion.div>
+                >
+                  SECURE CONNECTION
+                </motion.div>
+              </div>
+            </div>
           </div>
-        </div>
-        
-        {/* Loading indicator and text */}
-        <div className="mt-12 flex flex-col items-center">
-          {/* Phase indicator */}
-          <div className="flex space-x-1 mb-3">
-            {[0, 1, 2, 3].map((phase) => (
-              <motion.div
-                key={`phase-${phase}`}
-                className={`w-2 h-2 rounded-full ${phase <= loadingPhase ? 'bg-ai-purple' : 'bg-ai-purple/20'}`}
-                animate={phase === loadingPhase ? {
-                  scale: [1, 1.5, 1],
-                } : {}}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            ))}
-          </div>
-          
-          {/* Loading text with animation */}
-          <motion.div
-            className="h-6 overflow-hidden flex justify-center w-full"
-            animate={{ opacity: 1 }}
-            initial={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.div
-              className="flex flex-col items-center"
-              animate={{ y: -loadingPhase * 24 }} // 24px is the height of each text item
-              transition={{
-                duration: 0.5,
-                ease: "easeInOut"
-              }}
-            >
-              {loadingTexts.map((text, i) => (
-                <div key={i} className="h-6 flex items-center justify-center">
-                  <span className="text-lg font-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-ai-purple to-purple-300">
-                    {text}
-                  </span>
-                </div>
-              ))}
-            </motion.div>
-          </motion.div>
-          
-          {/* Animated progress bar */}
-          <div className="mt-4 w-64 h-1 bg-purple-900/20 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-purple-500 to-ai-purple"
-              initial={{ width: "0%" }}
-              animate={{ width: ["0%", "100%"] }}
-              transition={{
-                duration: 10,
-                ease: "easeInOut",
-                repeat: Infinity,
-              }}
-            />
-          </div>
-          
-          {/* Data transfer visualization */}
-          <motion.div
-            className="mt-3 flex items-center text-sm text-purple-300/70"
-            animate={{
-              opacity: [0.5, 0.8, 0.5]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <ArrowRightLeft className="w-3 h-3 mr-1" />
-            <motion.span
-              animate={{
-                opacity: [0.7, 1, 0.7]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              Synchronizing
-            </motion.span>
-          </motion.div>
         </div>
       </div>
     </div>
