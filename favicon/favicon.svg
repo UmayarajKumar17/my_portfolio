@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#121212"/>
+  
+  <!-- Gradient overlay -->
+  <rect width="512" height="512" rx="64" fill="url(#paint0_radial)"/>
+  
+  <!-- Neural network nodes -->
+  <circle cx="128" cy="128" r="24" fill="#8B5CF6" />
+  <circle cx="256" cy="96" r="24" fill="#8B5CF6" />
+  <circle cx="384" cy="128" r="24" fill="#8B5CF6" />
+  
+  <circle cx="96" cy="256" r="24" fill="#8B5CF6" />
+  <circle cx="256" cy="256" r="24" fill="#8B5CF6" />
+  <circle cx="416" cy="256" r="24" fill="#8B5CF6" />
+  
+  <circle cx="128" cy="384" r="24" fill="#8B5CF6" />
+  <circle cx="256" cy="416" r="24" fill="#8B5CF6" />
+  <circle cx="384" cy="384" r="24" fill="#8B5CF6" />
+  
+  <!-- Neural network connections -->
+  <line x1="128" y1="128" x2="256" y2="96" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="256" y1="96" x2="384" y2="128" stroke="#8B5CF6" stroke-width="4" />
+  
+  <line x1="128" y1="128" x2="96" y2="256" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="128" y1="128" x2="256" y2="256" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="256" y1="96" x2="256" y2="256" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="384" y1="128" x2="256" y2="256" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="384" y1="128" x2="416" y2="256" stroke="#8B5CF6" stroke-width="4" />
+  
+  <line x1="96" y1="256" x2="128" y2="384" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="96" y1="256" x2="256" y2="256" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="256" y1="256" x2="128" y2="384" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="256" y1="256" x2="256" y2="416" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="256" y1="256" x2="384" y2="384" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="416" y1="256" x2="256" y2="256" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="416" y1="256" x2="384" y2="384" stroke="#8B5CF6" stroke-width="4" />
+  
+  <line x1="128" y1="384" x2="256" y2="416" stroke="#8B5CF6" stroke-width="4" />
+  <line x1="256" y1="416" x2="384" y2="384" stroke="#8B5CF6" stroke-width="4" />
+  
+  <!-- UK Initials -->
+  <path d="M170 190V322M170 260L220 322M232 190V322" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M300 190V322M300 190L350 322M300 260H350" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Glow effect for nodes -->
+  <circle cx="128" cy="128" r="32" fill="url(#glow1)" />
+  <circle cx="256" cy="96" r="32" fill="url(#glow2)" />
+  <circle cx="384" cy="128" r="32" fill="url(#glow3)" />
+  <circle cx="256" cy="256" r="32" fill="url(#glow4)" />
+  
+  <!-- Definitions for gradients -->
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) rotate(90) scale(256)">
+      <stop offset="0" stop-color="#8B5CF6" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#121212" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 128) rotate(90) scale(32)">
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 96) rotate(90) scale(32)">
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="glow3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(384 128) rotate(90) scale(32)">
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="glow4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) rotate(90) scale(32)">
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg> 
