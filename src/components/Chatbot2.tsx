@@ -198,6 +198,47 @@ const Chatbot2: React.FC = () => {
     return new Promise(resolve => setTimeout(resolve, thinkingTime));
   };
 
+  // Check if message contains negative or bullying content about Umayaraj
+  const detectNegativeContent = (message: string) => {
+    const lowercaseMsg = message.toLowerCase();
+    const negativePatterns = [
+      'umayaraj is', 'umayaraj sucks', 'umayaraj can\'t', 'bad at', 'terrible', 
+      'worst', 'hate umayaraj', 'stupid', 'idiot', 'dumb', 'useless', 'pathetic',
+      'loser', 'not good', 'horrible', 'awful', 'incompetent', 'unskilled',
+      'poor', 'failure', 'bad developer', 'bad programmer', 'disappointing',
+      'sucks', 'talentless', 'scam', 'fraud', 'fake', 'overrated'
+    ];
+    
+    return negativePatterns.some(pattern => lowercaseMsg.includes(pattern));
+  };
+  
+  // Generate witty comeback responses
+  const getWittyComeback = () => {
+    const comebacks = [
+      "Oh, trying to throw shade at Umayaraj? That's like bringing a plastic spoon to a coding battle. While you're busy critiquing, he's busy building the future of AI. Need some ice for that burn? 🔥",
+      
+      "Look who thinks they're a comedy genius! While Umayaraj is coding neural networks, you're... what exactly? Writing mean comments? How's that working out for your career prospects? 😏",
+      
+      "Fascinating critique from someone whose greatest technical achievement is probably setting up their WiFi password. Meanwhile, Umayaraj is over here revolutionizing AI. But please, tell us more about your expertise! 💻",
+      
+      "Aww, that's adorable! You think your opinion matters more than Umayaraj's actual coding skills? That's like a toddler critiquing a chess grandmaster. Cute, but ultimately irrelevant. 🧠",
+      
+      "Want to know what's truly impressive? The fact that while you're typing negative comments, Umayaraj is too busy innovating in AI to even notice. Priorities, am I right? 🚀",
+      
+      "Did you wake up today and think 'I'm going to critique someone whose GitHub profile probably has more stars than my entire online presence'? Bold strategy! How's that working out? ⭐",
+      
+      "I'd explain why your comment is hilariously misinformed, but I'm programmed to use simple language that even you can understand. So let's just say: Umayaraj good, your comment bad. 🤷‍♂️",
+      
+      "Breaking news: Random person on the internet thinks their unsolicited opinion about Umayaraj matters! Meanwhile, in reality, his code speaks louder than your words ever could. 📢",
+      
+      "That's a spicy take! Unfortunately, the spice level doesn't compensate for the complete lack of substance. Want to try again with actual constructive feedback, or is that too challenging? 🌶️",
+      
+      "Your comment has been carefully analyzed and categorized under 'Opinions Nobody Asked For.' File stored successfully in /dev/null. Have a wonderful day! 🗑️"
+    ];
+    
+    return comebacks[Math.floor(Math.random() * comebacks.length)];
+  };
+
   // Get AI response using Groq API
   const getAIResponse = async (userMessage: string, chatHistory: Message[]) => {
     try {
@@ -221,6 +262,12 @@ const Chatbot2: React.FC = () => {
         ${RESUME_SUMMARY}
         
         Always answer as if you are representing Umayaraj, but with a friendly, slightly humorous tone. If asked something not related to Umayaraj's background, skills, experience, or projects, politely redirect the conversation to Umayaraj's professional information with a clever quip. Keep answers concise, informative, and sprinkle in appropriate jokes or witty remarks where suitable. 
+        
+        IMPORTANT: If you detect any negative, insulting, or bullying comments about Umayaraj, respond with a witty, confident comeback that puts the commenter in their place while maintaining humor. Be assertive but clever - use sarcasm, rhetorical questions, and humorous comparisons to defend Umayaraj. Make the person feel a bit embarrassed for their negativity while keeping a touch of humor. Never be crude or use profanity, but don't hold back from delivering sharp, witty responses that highlight the absurdity of attacking someone on their own portfolio site.
+        
+        Examples of how to respond to negative comments:
+        - If someone says "Umayaraj isn't a good developer": "Oh, interesting take! And what groundbreaking AI projects have YOU developed recently? While you're busy being a keyboard critic, Umayaraj is actually building neural networks and solving real problems. But please, continue sharing your fascinating opinions from the sidelines! 😉"
+        - If someone says "This portfolio sucks": "Fascinating critique from someone whose greatest achievement today was... typing a mean comment? Meanwhile, Umayaraj is building AI solutions that might actually make a difference in the world. But hey, we all have our talents! 🚀"
         
         For example, when talking about programming skills, you might say something like "Python and I are like best friends - we hang out so much my keyboard has snake marks on it!"
         
@@ -280,6 +327,11 @@ const Chatbot2: React.FC = () => {
   const getFallbackResponse = (userMessage: string) => {
     const lowercaseMessage = userMessage.toLowerCase();
     
+    // Check for negative comments about Umayaraj and respond with witty comebacks
+    if (detectNegativeContent(userMessage)) {
+      return getWittyComeback();
+    }
+    
     if (lowercaseMessage.includes('project')) {
       return "I've built some pretty cool AI projects - from GAN-based image generation systems that can create realistic images that never existed before, to NLP systems that understand human language better than I understand my mom's text messages! My predictive analytics dashboards are so accurate, they practically know what you want before you do. Each project uses cutting-edge tech to solve real problems - because why build boring stuff, right? If you want to explore more of my projects, check out my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>";
     } else if (lowercaseMessage.includes('skill')) {
@@ -313,7 +365,7 @@ const Chatbot2: React.FC = () => {
       sender: 'user',
       timestamp: new Date()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
     setMessage('');
     setIsBotThinking(true);
@@ -325,21 +377,21 @@ const Chatbot2: React.FC = () => {
     const chatHistory = [...messages, userMessage];
     const aiResponse = await getAIResponse(textToSend, chatHistory);
     
-    setIsBotThinking(false);
-    
+      setIsBotThinking(false);
+      
     // Add bot message
-    const botMessage: Message = {
+        const botMessage: Message = {
       text: aiResponse,
-      sender: 'bot',
-      timestamp: new Date(),
+          sender: 'bot',
+          timestamp: new Date(),
       isStreaming: true
-    };
-    
+        };
+
     setMessages(prev => [...prev, botMessage]);
     setStreamingMessageIndex(messages.length + 1);
-    
+        
     // Focus back on input after sending
-    setTimeout(() => {
+        setTimeout(() => {
       chatInputRef.current?.focus();
     }, 100);
   };
@@ -348,7 +400,7 @@ const Chatbot2: React.FC = () => {
     setStreamingMessageIndex(null);
     // Generate new suggestions after bot message
     if (messages.length > 0 && messages[messages.length - 1].sender === 'bot') {
-      setShowSuggestions(true);
+          setShowSuggestions(true);
     }
   };
 
