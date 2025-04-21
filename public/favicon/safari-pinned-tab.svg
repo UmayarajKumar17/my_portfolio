@@ -1,0 +1,24 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="512pt" height="512pt" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+  <!-- Neural network nodes -->
+  <g fill="#000000" stroke="none">
+    <circle cx="128" cy="128" r="24" />
+    <circle cx="256" cy="96" r="24" />
+    <circle cx="384" cy="128" r="24" />
+    
+    <circle cx="96" cy="256" r="24" />
+    <circle cx="256" cy="256" r="24" />
+    <circle cx="416" cy="256" r="24" />
+    
+    <circle cx="128" cy="384" r="24" />
+    <circle cx="256" cy="416" r="24" />
+    <circle cx="384" cy="384" r="24" />
+  </g>
+  
+  <!-- UK Initials -->
+  <g fill="#000000" stroke="none">
+    <path d="M170 190V322M170 260L220 322M232 190V322" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M300 190V322M300 190L350 322M300 260H350" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg> 
