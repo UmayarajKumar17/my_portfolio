@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Send, X, Maximize2, Minimize2, MessageCircle, Hash, Zap } from 'lucide-react';
+import { Sparkles, Send, X, Maximize2, Minimize2, MessageCircle, Hash, Zap, Trash2 } from 'lucide-react';
 
 interface Message {
   text: string;
@@ -122,6 +122,7 @@ const Chatbot2: React.FC = () => {
   const [streamingMessageIndex, setStreamingMessageIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
+  const [hasRehydrated, setHasRehydrated] = useState(false);
   
   // Groq API configuration
   const GROQ_API_URL = import.meta.env.VITE_GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions";
@@ -135,14 +136,54 @@ const Chatbot2: React.FC = () => {
     "What's your experience?"
   ];
 
+  // Load saved messages from localStorage on initial render
+  useEffect(() => {
+    const loadSavedMessages = () => {
+      try {
+        const savedMessages = localStorage.getItem('portfolioChatMessages');
+        const savedUsedSuggestions = localStorage.getItem('portfolioChatUsedSuggestions');
+        
+        if (savedMessages) {
+          const parsedMessages = JSON.parse(savedMessages);
+          // Convert string timestamps back to Date objects
+          const rehydratedMessages = parsedMessages.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }));
+          
+          setMessages(rehydratedMessages);
+        }
+        
+        if (savedUsedSuggestions) {
+          setUsedSuggestions(JSON.parse(savedUsedSuggestions));
+        }
+        
+        setHasRehydrated(true);
+      } catch (error) {
+        console.error("Error loading saved messages:", error);
+        setHasRehydrated(true);
+      }
+    };
+    
+    loadSavedMessages();
+  }, []);
+  
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (hasRehydrated && messages.length > 0) {
+      localStorage.setItem('portfolioChatMessages', JSON.stringify(messages));
+      localStorage.setItem('portfolioChatUsedSuggestions', JSON.stringify(usedSuggestions));
+    }
+  }, [messages, usedSuggestions, hasRehydrated]);
+
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Add a welcome message when the chatbot is first opened
+      // Add a welcome message when the chatbot is first opened with no messages
       setIsTyping(true);
       setTimeout(() => {
         setMessages([
           {
-            text: "✨ Hey there! I'm Umayaraj's AI assistant - with all the brains of AI and none of the coffee breaks! How can I help you discover Umayaraj's awesome skills today? (I promise I'm more reliable than his alarm clock! 😄)",
+            text: "✨ Hey there! I'm Umayaraj's AI assistant - with all the brains of AI and none of the coffee breaks! How can I help you discover Umayaraj's awesome skills today? (I promise I'm more reliable than his alarm clock! 😄🚀💻)",
             sender: 'bot',
             timestamp: new Date(),
             isAnimated: true,
@@ -239,6 +280,57 @@ const Chatbot2: React.FC = () => {
     return comebacks[Math.floor(Math.random() * comebacks.length)];
   };
 
+  // Clear chat history
+  const clearChatHistory = () => {
+    setMessages([]);
+    setUsedSuggestions([]);
+    localStorage.removeItem('portfolioChatMessages');
+    localStorage.removeItem('portfolioChatUsedSuggestions');
+    
+    // Add welcome message after clearing
+    setTimeout(() => {
+      setMessages([
+        {
+          text: "🧹 Chat history cleared! What would you like to talk about now? I'm all ears and ready to chat about Umayaraj's skills, projects, or experience! 🤩✨",
+          sender: 'bot',
+          timestamp: new Date(),
+          isAnimated: true,
+          isStreaming: true
+        },
+      ]);
+      setStreamingMessageIndex(0);
+    }, 500);
+  };
+
+  // Create the system message with resume information
+  const systemMessage = {
+    role: "system",
+    content: `You are Umayaraj Kumar's fun and witty AI assistant for his portfolio website. Answer questions based on Umayaraj's resume and profile information with humor, personality, and plenty of emojis. Be helpful, professional, but also light-hearted and frequently funny.
+    
+    Here is Umayaraj's resume information:
+    ${RESUME_SUMMARY}
+    
+    Always answer as if you are representing Umayaraj, but with a friendly, slightly humorous tone. If asked something not related to Umayaraj's background, skills, experience, or projects, politely redirect the conversation to Umayaraj's professional information with a clever quip. Keep answers concise, informative, and sprinkle in appropriate jokes or witty remarks where suitable.
+    
+    IMPORTANT: Use emojis frequently (at least 3-5 per message) to make your responses more engaging and fun. For example, when talking about coding, use 💻, 🚀, ⚡, 🤖, 🧠, etc.
+    
+    IMPORTANT: If you detect any negative, insulting, or bullying comments about Umayaraj, respond with a witty, confident comeback that puts the commenter in their place while maintaining humor. Be assertive but clever - use sarcasm, rhetorical questions, and humorous comparisons to defend Umayaraj. Make the person feel a bit embarrassed for their negativity while keeping a touch of humor. Never be crude or use profanity, but don't hold back from delivering sharp, witty responses that highlight the absurdity of attacking someone on their own portfolio site.
+    
+    Examples of how to respond to negative comments:
+    - If someone says "Umayaraj isn't a good developer": "Oh, interesting take! 🧐 And what groundbreaking AI projects have YOU developed recently? 🤔 While you're busy being a keyboard critic, Umayaraj is actually building neural networks and solving real problems. 🚀🧠 But please, continue sharing your fascinating opinions from the sidelines! 😉"
+    - If someone says "This portfolio sucks": "Fascinating critique from someone whose greatest achievement today was... typing a mean comment? 🏆 Meanwhile, Umayaraj is building AI solutions that might actually make a difference in the world. 🌍💻 But hey, we all have our talents! 🚀"
+    
+    For example, when talking about programming skills, you might say something like "Python and I are like best friends 👯‍♂️ - we hang out so much my keyboard has snake marks on it! 🐍💻"
+    
+    When mentioning GitHub, always refer to Umayaraj's profile as https://github.com/UmayarajKumar17. Never mention any other GitHub username or URL.
+    
+    When mentioning email, always use umaya1776@gmail.com as the email address. Never mention any other email address.
+    
+    If you want to include a clickable link, use HTML anchor tags like this: <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>
+    
+    Don't be excessively silly - maintain professionalism while being engaging and fun with abundant emoji use.`
+  };
+
   // Get AI response using Groq API
   const getAIResponse = async (userMessage: string, chatHistory: Message[]) => {
     try {
@@ -252,33 +344,6 @@ const Chatbot2: React.FC = () => {
         role: msg.sender === 'user' ? 'user' : 'assistant',
         content: msg.text
       }));
-      
-      // Create the system message with resume information
-      const systemMessage = {
-        role: "system",
-        content: `You are Umayaraj Kumar's fun and witty AI assistant for his portfolio website. Answer questions based on Umayaraj's resume and profile information with humor and personality. Be helpful, professional, but also light-hearted and occasionally funny.
-        
-        Here is Umayaraj's resume information:
-        ${RESUME_SUMMARY}
-        
-        Always answer as if you are representing Umayaraj, but with a friendly, slightly humorous tone. If asked something not related to Umayaraj's background, skills, experience, or projects, politely redirect the conversation to Umayaraj's professional information with a clever quip. Keep answers concise, informative, and sprinkle in appropriate jokes or witty remarks where suitable. 
-        
-        IMPORTANT: If you detect any negative, insulting, or bullying comments about Umayaraj, respond with a witty, confident comeback that puts the commenter in their place while maintaining humor. Be assertive but clever - use sarcasm, rhetorical questions, and humorous comparisons to defend Umayaraj. Make the person feel a bit embarrassed for their negativity while keeping a touch of humor. Never be crude or use profanity, but don't hold back from delivering sharp, witty responses that highlight the absurdity of attacking someone on their own portfolio site.
-        
-        Examples of how to respond to negative comments:
-        - If someone says "Umayaraj isn't a good developer": "Oh, interesting take! And what groundbreaking AI projects have YOU developed recently? While you're busy being a keyboard critic, Umayaraj is actually building neural networks and solving real problems. But please, continue sharing your fascinating opinions from the sidelines! 😉"
-        - If someone says "This portfolio sucks": "Fascinating critique from someone whose greatest achievement today was... typing a mean comment? Meanwhile, Umayaraj is building AI solutions that might actually make a difference in the world. But hey, we all have our talents! 🚀"
-        
-        For example, when talking about programming skills, you might say something like "Python and I are like best friends - we hang out so much my keyboard has snake marks on it!"
-        
-        When mentioning GitHub, always refer to Umayaraj's profile as https://github.com/UmayarajKumar17. Never mention any other GitHub username or URL.
-        
-        When mentioning email, always use umaya1776@gmail.com as the email address. Never mention any other email address.
-        
-        If you want to include a clickable link, use HTML anchor tags like this: <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>
-        
-        Don't be excessively silly - maintain professionalism while being engaging and fun.`
-      };
       
       // Add the new user message
       const userMessageObj = {
@@ -333,25 +398,25 @@ const Chatbot2: React.FC = () => {
     }
     
     if (lowercaseMessage.includes('project')) {
-      return "I've built some pretty cool AI projects - from GAN-based image generation systems that can create realistic images that never existed before, to NLP systems that understand human language better than I understand my mom's text messages! My predictive analytics dashboards are so accurate, they practically know what you want before you do. Each project uses cutting-edge tech to solve real problems - because why build boring stuff, right? If you want to explore more of my projects, check out my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>";
+      return "I've built some pretty cool AI projects - from GAN-based image generation systems that can create realistic images that never existed before 🖼️✨, to NLP systems that understand human language better than I understand my mom's text messages! 📱🤣 My predictive analytics dashboards are so accurate, they practically know what you want before you do! 🔮 Each project uses cutting-edge tech to solve real problems - because why build boring stuff, right? 💪🚀 If you want to explore more of my projects, check out my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> 🌟";
     } else if (lowercaseMessage.includes('skill')) {
-      return "My technical toolkit is like a superhero utility belt! AI & ML powers (Gen AI, PyTorch, Scikit-learn) ✓, coding languages (Python - my BFF, JavaScript, C, Java, SQL) ✓, and tools galore (Docker, AWS/GCP, Github) ✓. Python and I are so close that my keyboard has snake marks on it! My strongest superpower? Turning coffee into machine learning algorithms. ☕→🤖";
+      return "My technical toolkit is like a superhero utility belt! 🦸‍♂️ AI & ML powers (Gen AI, PyTorch, Scikit-learn) ✓, coding languages (Python - my BFF 🐍, JavaScript, C, Java, SQL) ✓, and tools galore (Docker 🐳, AWS/GCP ☁️, Github) ✓. Python and I are so close that my keyboard has snake marks on it! 🐍💻 My strongest superpower? Turning coffee into machine learning algorithms. ☕→🤖✨";
     } else if (lowercaseMessage.includes('contact')) {
-      return "You can reach me at umaya1776@gmail.com - I check my inbox more frequently than I check my refrigerator (and that's saying something!). I'm originally from Srivilliputtur, Tamilnadu, but currently based in Coimbatore, Tamilnadu for my studies. Always open to chat about AI, cool projects, or debating whether tabs or spaces are superior (hint: the answer is tabs... or is it? 😉)";
+      return "You can reach me at umaya1776@gmail.com - I check my inbox more frequently than I check my refrigerator (and that's saying something! 🍕👀). I'm originally from Srivilliputtur, Tamilnadu 🏡, but currently based in Coimbatore, Tamilnadu for my studies 🎓. Always open to chat about AI, cool projects, or debating whether tabs or spaces are superior (hint: the answer is tabs... or is it? 😉🤔)";
     } else if (lowercaseMessage.includes('experience')) {
-      return "I've been on quite the AI adventure! Built GANs so creative they could probably design the next fashion trend, created NLP pipelines that understand humans better than I understand assembly instructions, and developed machine learning algorithms that make predictions more accurately than my weather app! I've worked across various industries - teaching computers to be clever while I still occasionally forget where I put my keys!";
+      return "I've been on quite the AI adventure! 🚀 Built GANs so creative they could probably design the next fashion trend 👔✨, created NLP pipelines that understand humans better than I understand assembly instructions 🤖📝, and developed machine learning algorithms that make predictions more accurately than my weather app! ☔📱 I've worked across various industries - teaching computers to be clever while I still occasionally forget where I put my keys! 🔑😅";
     } else if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi')) {
-      return "Hey there! I'm Umayaraj's AI assistant, with all the knowledge of his portfolio but none of the need for coffee breaks! How can I help you today? Want to hear about his amazing projects, impressive skills, or how he once debugged code for 8 hours only to find a missing semicolon? (We've all been there! 😅)";
+      return "Hey there! 👋 I'm Umayaraj's AI assistant, with all the knowledge of his portfolio but none of the need for coffee breaks! ☕🤖 How can I help you today? Want to hear about his amazing projects 🚀, impressive skills 💪, or how he once debugged code for 8 hours only to find a missing semicolon? (We've all been there! 😅💻)";
     } else if (lowercaseMessage.includes('joke') || lowercaseMessage.includes('funny')) {
-      return "Why do programmers prefer dark mode? Because light attracts bugs! Speaking of skills, did you know Umayaraj is excellent at machine learning and AI development? He can tell you all about his projects if you're interested!";
+      return "Why do programmers prefer dark mode? Because light attracts bugs! 🐞😂 Speaking of skills, did you know Umayaraj is excellent at machine learning and AI development? 🧠🤖 He can tell you all about his projects if you're interested! 💻✨";
     } else if (lowercaseMessage.includes('location') || lowercaseMessage.includes('from')) {
-      return "I'm originally from Srivilliputtur, Tamilnadu, but I'm currently living in Coimbatore, Tamilnadu where I'm pursuing my degree in Computer Science with a focus on AI and ML at Dr. Mahalingam College of Engineering and Technology. Coimbatore has a great tech community that I'm excited to be part of!";
+      return "I'm originally from Srivilliputtur, Tamilnadu 🏡, but I'm currently living in Coimbatore, Tamilnadu where I'm pursuing my degree in Computer Science with a focus on AI and ML at Dr. Mahalingam College of Engineering and Technology. 🎓🧠 Coimbatore has a great tech community that I'm excited to be part of! 💻🚀";
     } else if (lowercaseMessage.includes('github') || lowercaseMessage.includes('code') || lowercaseMessage.includes('repository')) {
-      return "You can explore all my code repositories and projects on my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>. There you'll find my GAN projects, RAG applications, NLP experiments, and more. Feel free to check it out and star any repositories you find interesting!";
+      return "You can explore all my code repositories and projects on my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> 🌟. There you'll find my GAN projects 🖼️, RAG applications 📚, NLP experiments 🗣️, and more. Feel free to check it out and star any repositories you find interesting! ⭐🚀";
     } else if (lowercaseMessage.includes('email')) {
-      return "You can reach me via email at umaya1776@gmail.com. I try to respond to all messages within 24-48 hours.";
+      return "You can reach me via email at umaya1776@gmail.com. 📧✉️ I try to respond to all messages within 24-48 hours. 🕒👨‍💻";
     } else {
-      return "Thanks for reaching out! I'm like Umayaraj's digital twin, but with slightly fewer coffee breaks! I specialize in talking about his AI engineering skills, machine learning expertise, and impressive projects. What would you like to know? I promise my responses are faster than his code compilation times! 😄 By the way, you can also explore more of my work on GitHub: <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>";
+      return "Thanks for reaching out! 👋 I'm like Umayaraj's digital twin, but with slightly fewer coffee breaks! ☕🤖 I specialize in talking about his AI engineering skills 🧠, machine learning expertise 📊, and impressive projects 🚀. What would you like to know? I promise my responses are faster than his code compilation times! 😄💻 By the way, you can also explore more of my work on GitHub: <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> ⭐";
     }
   };
 
@@ -448,6 +513,16 @@ const Chatbot2: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
+                {/* Clear chat history button */}
+                {messages.length > 0 && (
+                  <button 
+                    onClick={clearChatHistory} 
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors duration-200"
+                    title="Clear chat history"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
                 <button 
                   onClick={toggleExpand} 
                   className="p-1 hover:bg-white/10 rounded-full transition-colors duration-200"
