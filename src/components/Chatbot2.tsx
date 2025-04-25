@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Send, X, Maximize2, Minimize2, MessageCircle, Hash, Zap, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
   text: string;
@@ -123,6 +124,59 @@ const Chatbot2: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const [hasRehydrated, setHasRehydrated] = useState(false);
+  
+  // Tooltip messages state
+  const [showTooltip, setShowTooltip] = useState(true);
+  const [currentTooltipIndex, setCurrentTooltipIndex] = useState(0);
+  const [isTooltipFading, setIsTooltipFading] = useState(false);
+  const [tooltipDismissed, setTooltipDismissed] = useState(false);
+  
+  // Array of tooltip messages
+  const tooltipMessages = [
+    "🤗 Hey, I'm here if you need me!",
+    "✨ Need a tour? I'm your guide!",
+    "📬 Tap to talk, I don't bite!",
+    "🕵️ Need secrets about this portfolio? I know 'em all.",
+    "🧬 I'm AI-powered and portfolio-fluent!",
+    "🌐 Powered by code, trained by Umaya!",
+    "🧠 This bot knows more than just 1s and 0s.",
+    "🐣 Tap me—I'm smarter than I look!",
+    "🧙 Call me the Wizard of Portfolios 🪄",
+    "🧃 Juicy info inside—just click!",
+    "📊 Learn more about Umaya's work!",
+    "📂 Need project details? I've got them all!",
+    "🧾 Résumé questions? I've got answers!",
+    "🛠️ Explore skills, projects, and more—ask away!"
+  ];
+  
+  // Handle tooltip dismissal
+  const handleDismissTooltip = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTooltipDismissed(true);
+    setShowTooltip(false);
+  };
+  
+  // Tooltip cycling effect
+  useEffect(() => {
+    if (isOpen || tooltipDismissed) {
+      setShowTooltip(false);
+      return;
+    }
+    
+    // Set up timer to change tooltip message
+    const messageInterval = setInterval(() => {
+      setIsTooltipFading(true);
+      
+      // Wait for fade out animation to complete
+      setTimeout(() => {
+        setCurrentTooltipIndex(prev => (prev + 1) % tooltipMessages.length);
+        setIsTooltipFading(false);
+      }, 500); // Half a second for fade out
+      
+    }, 5000); // Change message every 5 seconds
+    
+    return () => clearInterval(messageInterval);
+  }, [isOpen, tooltipMessages.length, tooltipDismissed]);
   
   // Groq API configuration
   const GROQ_API_URL = import.meta.env.VITE_GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions";
@@ -399,26 +453,50 @@ const Chatbot2: React.FC = () => {
       return getWittyComeback();
     }
     
+    // Increase GitHub promotion frequency (now 70% of responses)
+    const shouldPromoteGithub = Math.random() < 0.7;
+    const githubPromotion = " By the way, there's a treasure trove of cool projects on Umayaraj's GitHub that isn't mentioned here - might be worth checking out! 👀✨ <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>github.com/UmayarajKumar17</a>";
+    
+    // Choose a random GitHub promotion from a variety of messages
+    const getRandomGithubPromo = () => {
+      const promos = [
+        " Hey, while we're chatting, you should definitely check out Umayaraj's GitHub - some really impressive projects there! 🚀 <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>github.com/UmayarajKumar17</a>",
+        " By the way, have you seen Umayaraj's GitHub yet? That's where all the cool code lives! It's worth a look 👀 <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>github.com/UmayarajKumar17</a>",
+        " Quick tip: Umayaraj's GitHub has even more exciting projects not mentioned here! 💡 <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>github.com/UmayarajKumar17</a>",
+        " Just between us - the real magic happens on Umayaraj's GitHub repositories! 🧙‍♂️✨ <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>github.com/UmayarajKumar17</a>",
+        " Speaking of awesome work, you should definitely visit Umayaraj's GitHub profile for more amazing projects! 🌟 <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>github.com/UmayarajKumar17</a>"
+      ];
+      return promos[Math.floor(Math.random() * promos.length)];
+    };
+    
+    // Always add GitHub promotion to every response type
+    const githubPromo = shouldPromoteGithub ? getRandomGithubPromo() : "";
+    
     if (lowercaseMessage.includes('project')) {
       return "I've built some pretty cool AI projects - from GAN-based image generation systems that can create realistic images that never existed before 🖼️✨, to NLP systems that understand human language better than I understand my mom's text messages! 📱🤣 My predictive analytics dashboards are so accurate, they practically know what you want before you do! 🔮 Each project uses cutting-edge tech to solve real problems - because why build boring stuff, right? 💪🚀 If you want to explore more of my projects, check out my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> 🌟";
     } else if (lowercaseMessage.includes('skill')) {
-      return "My technical toolkit is like a superhero utility belt! 🦸‍♂️ AI & ML powers (Gen AI, PyTorch, Scikit-learn) ✓, coding languages (Python - my BFF 🐍, JavaScript, C, Java, SQL) ✓, and tools galore (Docker 🐳, AWS/GCP ☁️, Github) ✓. Python and I are so close that my keyboard has snake marks on it! 🐍💻 My strongest superpower? Turning coffee into machine learning algorithms. ☕→🤖✨";
+      const response = "My technical toolkit is like a superhero utility belt! 🦸‍♂️ AI & ML powers (Gen AI, PyTorch, Scikit-learn) ✓, coding languages (Python - my BFF 🐍, JavaScript, C, Java, SQL) ✓, and tools galore (Docker 🐳, AWS/GCP ☁️, Github) ✓. Python and I are so close that my keyboard has snake marks on it! 🐍💻 My strongest superpower? Turning coffee into machine learning algorithms. ☕→🤖✨";
+      return response + githubPromo;
     } else if (lowercaseMessage.includes('contact')) {
-      return "You can reach me at umaya1776@gmail.com - I check my inbox more frequently than I check my refrigerator (and that's saying something! 🍕👀). I'm originally from Srivilliputtur, Tamilnadu 🏡, but currently based in Coimbatore, Tamilnadu for my studies 🎓. Always open to chat about AI, cool projects, or debating whether tabs or spaces are superior (hint: the answer is tabs... or is it? 😉🤔)";
+      return "You can reach me at umaya1776@gmail.com - I check my inbox more frequently than I check my refrigerator (and that's saying something! 🍕👀). I'm originally from Srivilliputtur, Tamilnadu 🏡, but currently based in Coimbatore, Tamilnadu for my studies 🎓. Always open to chat about AI, cool projects, or debating whether tabs or spaces are superior (hint: the answer is tabs... or is it? 😉🤔)" + githubPromo;
     } else if (lowercaseMessage.includes('experience')) {
-      return "I've been on quite the AI adventure! 🚀 Built GANs so creative they could probably design the next fashion trend 👔✨, created NLP pipelines that understand humans better than I understand assembly instructions 🤖📝, and developed machine learning algorithms that make predictions more accurately than my weather app! ☔📱 I've worked across various industries - teaching computers to be clever while I still occasionally forget where I put my keys! 🔑😅";
+      const response = "I've been on quite the AI adventure! 🚀 Built GANs so creative they could probably design the next fashion trend 👔✨, created NLP pipelines that understand humans better than I understand assembly instructions 🤖📝, and developed machine learning algorithms that make predictions more accurately than my weather app! ☔📱 I've worked across various industries - teaching computers to be clever while I still occasionally forget where I put my keys! 🔑😅";
+      return response + githubPromo;
     } else if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi')) {
-      return "Hey there! 👋 I'm Umayaraj's AI assistant, with all the knowledge of his portfolio but none of the need for coffee breaks! ☕🤖 How can I help you today? Want to hear about his amazing projects 🚀, impressive skills 💪, or how he once debugged code for 8 hours only to find a missing semicolon? (We've all been there! 😅💻)";
+      const response = "Hey there! 👋 I'm Umayaraj's AI assistant, with all the knowledge of his portfolio but none of the need for coffee breaks! ☕🤖 How can I help you today? Want to hear about his amazing projects 🚀, impressive skills 💪, or how he once debugged code for 8 hours only to find a missing semicolon? (We've all been there! 😅💻)";
+      return response + githubPromo;
     } else if (lowercaseMessage.includes('joke') || lowercaseMessage.includes('funny')) {
-      return "Why do programmers prefer dark mode? Because light attracts bugs! 🐞😂 Speaking of skills, did you know Umayaraj is excellent at machine learning and AI development? 🧠🤖 He can tell you all about his projects if you're interested! 💻✨";
+      return "Why do programmers prefer dark mode? Because light attracts bugs! 🐞😂 Speaking of skills, did you know Umayaraj is excellent at machine learning and AI development? 🧠🤖 He can tell you all about his projects if you're interested! 💻✨" + githubPromo;
     } else if (lowercaseMessage.includes('location') || lowercaseMessage.includes('from')) {
-      return "I'm originally from Srivilliputtur, Tamilnadu 🏡, but I'm currently living in Coimbatore, Tamilnadu where I'm pursuing my degree in Computer Science with a focus on AI and ML at Dr. Mahalingam College of Engineering and Technology. 🎓🧠 Coimbatore has a great tech community that I'm excited to be part of! 💻🚀";
+      const response = "I'm originally from Srivilliputtur, Tamilnadu 🏡, but I'm currently living in Coimbatore, Tamilnadu where I'm pursuing my degree in Computer Science with a focus on AI and ML at Dr. Mahalingam College of Engineering and Technology. 🎓🧠 Coimbatore has a great tech community that I'm excited to be part of! 💻🚀";
+      return response + githubPromo;
     } else if (lowercaseMessage.includes('github') || lowercaseMessage.includes('code') || lowercaseMessage.includes('repository')) {
-      return "You can explore all my code repositories and projects on my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> 🌟. There you'll find my GAN projects 🖼️, RAG applications 📚, NLP experiments 🗣️, and more. Feel free to check it out and star any repositories you find interesting! ⭐🚀";
+      return "You can explore all my code repositories and projects on my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> 🌟. There you'll find my GAN projects 🖼️, RAG applications 📚, NLP experiments 🗣️, and more. Feel free to check it out and star any repositories you find interesting! ⭐🚀 It's where the real magic happens - some of my best work isn't even mentioned on this portfolio yet! 🧙‍♂️✨";
     } else if (lowercaseMessage.includes('email')) {
-      return "You can reach me via email at umaya1776@gmail.com. 📧✉️ I try to respond to all messages within 24-48 hours. 🕒👨‍💻";
+      return "You can reach me via email at umaya1776@gmail.com. 📧✉️ I try to respond to all messages within 24-48 hours. 🕒👨‍💻" + githubPromo;
     } else {
-      return "Thanks for reaching out! 👋 I'm like Umayaraj's digital twin, but with slightly fewer coffee breaks! ☕🤖 I specialize in talking about his AI engineering skills 🧠, machine learning expertise 📊, and impressive projects 🚀. What would you like to know? I promise my responses are faster than his code compilation times! 😄💻 By the way, you can also explore more of my work on GitHub: <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> ⭐";
+      const response = "Thanks for reaching out! 👋 I'm like Umayaraj's digital twin, but with slightly fewer coffee breaks! ☕🤖 I specialize in talking about his AI engineering skills 🧠, machine learning expertise 📊, and impressive projects 🚀. What would you like to know? I promise my responses are faster than his code compilation times! 😄💻";
+      return response + " By the way, you should definitely visit Umayaraj's GitHub - there's so much cool stuff there! <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>github.com/UmayarajKumar17</a> ⭐";
     }
   };
 
@@ -478,6 +556,36 @@ const Chatbot2: React.FC = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
+      {/* Tooltip positioned directly above chatbot button */}
+      {showTooltip && !isOpen && !tooltipDismissed && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: isTooltipFading ? 0 : 1, y: isTooltipFading ? 10 : 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+            className="absolute bottom-[4.5rem] right-0 w-[220px] bg-ai-purple text-white px-4 py-3 rounded-lg shadow-lg"
+          >
+            <div className="relative">
+              {/* Cancel button positioned at top-right corner */}
+              <button 
+                onClick={handleDismissTooltip}
+                className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-200 transition-colors duration-200 z-10 opacity-75"
+                aria-label="Dismiss tooltip"
+              >
+                <X size={10} className="text-ai-purple" />
+              </button>
+              
+              {/* Message content */}
+              <p className="text-sm">{tooltipMessages[currentTooltipIndex]}</p>
+              
+              {/* Triangle pointer - precisely positioned to point to the chatbot icon */}
+              <div className="absolute -bottom-[8px] right-7 w-0 h-0 border-l-[8px] border-l-transparent border-t-[8px] border-t-ai-purple border-r-[8px] border-r-transparent"></div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      )}
+      
       {/* Chat button with pulsing effect */}
       <button
         onClick={toggleChat}
@@ -485,6 +593,8 @@ const Chatbot2: React.FC = () => {
           isOpen ? 'bg-ai-purple hover:bg-purple-700 rotate-90' : 'bg-ai-purple hover:bg-purple-700'
         }`}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
+        onMouseEnter={() => !tooltipDismissed && setShowTooltip(true)}
+        onMouseLeave={() => !isOpen && !tooltipDismissed && setShowTooltip(true)}
       >
         {!isOpen && (
           <div className="absolute inset-0 rounded-full bg-ai-purple animate-ping opacity-50"></div>
