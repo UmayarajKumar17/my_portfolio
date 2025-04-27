@@ -8,8 +8,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { initGA, trackPageView } from "@/utils/analytics";
 
-// Get tracking ID from environment variables or use a default placeholder
-const GA_TRACKING_ID = import.meta.env.VITE_GA_TRACKING_ID || "G-XXXXXXXXXX";
+// Use the specific Google Analytics tracking ID
+const GA_TRACKING_ID = "G-MD5CG3N4WF";
 
 const queryClient = new QueryClient();
 
