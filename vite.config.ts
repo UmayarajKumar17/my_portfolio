@@ -24,6 +24,15 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
+    include: ['react-ga4'],
     force: true
+  },
+  build: {
+    rollupOptions: {
+      external: [],
+    },
+    commonjsOptions: {
+      include: [/node_modules/],
+    },
   }
 }));
