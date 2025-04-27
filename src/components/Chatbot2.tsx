@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Send, X, Maximize2, Minimize2, MessageCircle, Hash, Zap, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { trackEvent } from '@/utils/analytics';
 
 interface Message {
   text: string;
@@ -244,11 +245,27 @@ const Chatbot2: React.FC = () => {
   };
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    const newState = !isOpen;
+    setIsOpen(newState);
+    
+    // Track chat open/close events
+    trackEvent(
+      'Chat', 
+      newState ? 'Open Chat' : 'Close Chat',
+      'Chat Widget'
+    );
   };
 
   const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+    const newState = !isExpanded;
+    setIsExpanded(newState);
+    
+    // Track chat expand/collapse events
+    trackEvent(
+      'Chat',
+      newState ? 'Expand Chat' : 'Collapse Chat',
+      'Chat Widget'
+    );
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -264,6 +281,9 @@ const Chatbot2: React.FC = () => {
   const handleSuggestionClick = (suggestion: string) => {
     // Add the suggestion to the used suggestions list
     setUsedSuggestions(prev => [...prev, suggestion]);
+    
+    // Track suggestion click event
+    trackEvent('Chat', 'Click Suggestion', suggestion);
     
     setMessage(suggestion);
     setTimeout(() => {
@@ -325,6 +345,9 @@ const Chatbot2: React.FC = () => {
     setUsedSuggestions([]);
     localStorage.removeItem('portfolioChatMessages');
     localStorage.removeItem('portfolioChatUsedSuggestions');
+    
+    // Track clear chat history event
+    trackEvent('Chat', 'Clear History', 'Chat Widget');
     
     // Add welcome message after clearing
     setTimeout(() => {
@@ -488,6 +511,9 @@ const Chatbot2: React.FC = () => {
   const sendMessage = async (textOverride?: string) => {
     const textToSend = textOverride || message.trim();
     if (!textToSend) return;
+
+    // Track message sent event
+    trackEvent('Chat', 'Send Message', textToSend.length > 20 ? `${textToSend.substring(0, 20)}...` : textToSend);
 
     // Add user message
     const userMessage: Message = {
