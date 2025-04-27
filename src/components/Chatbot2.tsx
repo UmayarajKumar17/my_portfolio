@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Send, X, Maximize2, Minimize2, MessageCircle, Hash, Zap, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { trackEvent } from '@/utils/analytics';
+import * as gtag from '@/utils/gtag';
 
 interface Message {
   text: string;
@@ -249,11 +249,11 @@ const Chatbot2: React.FC = () => {
     setIsOpen(newState);
     
     // Track chat open/close events
-    trackEvent(
-      'Chat', 
-      newState ? 'Open Chat' : 'Close Chat',
-      'Chat Widget'
-    );
+    gtag.event({
+      action: newState ? 'open_chat' : 'close_chat',
+      category: 'Chat',
+      label: 'Chat Widget'
+    });
   };
 
   const toggleExpand = () => {
@@ -261,11 +261,11 @@ const Chatbot2: React.FC = () => {
     setIsExpanded(newState);
     
     // Track chat expand/collapse events
-    trackEvent(
-      'Chat',
-      newState ? 'Expand Chat' : 'Collapse Chat',
-      'Chat Widget'
-    );
+    gtag.event({
+      action: newState ? 'expand_chat' : 'collapse_chat',
+      category: 'Chat',
+      label: 'Chat Widget'
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -283,7 +283,11 @@ const Chatbot2: React.FC = () => {
     setUsedSuggestions(prev => [...prev, suggestion]);
     
     // Track suggestion click event
-    trackEvent('Chat', 'Click Suggestion', suggestion);
+    gtag.event({
+      action: 'click_suggestion',
+      category: 'Chat',
+      label: suggestion
+    });
     
     setMessage(suggestion);
     setTimeout(() => {
@@ -347,7 +351,11 @@ const Chatbot2: React.FC = () => {
     localStorage.removeItem('portfolioChatUsedSuggestions');
     
     // Track clear chat history event
-    trackEvent('Chat', 'Clear History', 'Chat Widget');
+    gtag.event({
+      action: 'clear_history',
+      category: 'Chat',
+      label: 'Chat Widget'
+    });
     
     // Add welcome message after clearing
     setTimeout(() => {
@@ -513,7 +521,11 @@ const Chatbot2: React.FC = () => {
     if (!textToSend) return;
 
     // Track message sent event
-    trackEvent('Chat', 'Send Message', textToSend.length > 20 ? `${textToSend.substring(0, 20)}...` : textToSend);
+    gtag.event({
+      action: 'send_message',
+      category: 'Chat',
+      label: textToSend.length > 20 ? `${textToSend.substring(0, 20)}...` : textToSend
+    });
 
     // Add user message
     const userMessage: Message = {

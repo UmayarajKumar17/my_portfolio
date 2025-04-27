@@ -6,10 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from "re
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import { initGA, trackPageView } from "@/utils/analytics";
-
-// Use the specific Google Analytics tracking ID
-const GA_TRACKING_ID = "G-MD5CG3N4WF";
+import * as gtag from "@/utils/gtag";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +18,7 @@ const AnalyticsTracker = () => {
   useEffect(() => {
     // Track page view whenever the location changes
     if (navigationType !== 'POP') {
-      trackPageView(location.pathname + location.search);
+      gtag.pageview(location.pathname + location.search);
     }
   }, [location, navigationType]);
   
@@ -29,11 +26,6 @@ const AnalyticsTracker = () => {
 };
 
 const App = () => {
-  // Initialize Google Analytics
-  useEffect(() => {
-    initGA(GA_TRACKING_ID);
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
