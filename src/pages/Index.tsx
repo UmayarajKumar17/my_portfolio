@@ -12,12 +12,16 @@ import LoadingScreen from "@/components/LoadingScreen";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [chatbotKey, setChatbotKey] = useState(`chatbot-${Date.now()}`);
 
   useEffect(() => {
     // Simulate loading time for demo purposes
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
+
+    // Generate a unique key for the chatbot component on each page load
+    setChatbotKey(`chatbot-${Date.now()}`);
 
     // Add smooth scrolling behavior
     const handleAnchorClick = (e: MouseEvent) => {
@@ -84,7 +88,7 @@ const Index = () => {
         <ProjectsSection />
         <ContactSection />
         <Footer />
-        <Chatbot2 key="chatbot-component-1" />
+        <Chatbot2 key={chatbotKey} />
       </main>
     </TooltipProvider>
   );

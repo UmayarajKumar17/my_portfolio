@@ -194,27 +194,11 @@ const Chatbot2: React.FC = () => {
   useEffect(() => {
     const loadSavedMessages = () => {
       try {
-        const savedMessages = localStorage.getItem('portfolioChatMessages');
-        const savedUsedSuggestions = localStorage.getItem('portfolioChatUsedSuggestions');
-        
-        if (savedMessages) {
-          const parsedMessages = JSON.parse(savedMessages);
-          // Convert string timestamps back to Date objects
-          const rehydratedMessages = parsedMessages.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          }));
-          
-          setMessages(rehydratedMessages);
-        }
-        
-        if (savedUsedSuggestions) {
-          setUsedSuggestions(JSON.parse(savedUsedSuggestions));
-        }
-        
+        // Skip loading saved messages to ensure privacy between different users
+        // Each new visitor should get a fresh chat
         setHasRehydrated(true);
       } catch (error) {
-        console.error("Error loading saved messages:", error);
+        console.error("Error in chat initialization:", error);
         setHasRehydrated(true);
       }
     };
@@ -225,6 +209,7 @@ const Chatbot2: React.FC = () => {
   // Save messages to localStorage whenever they change
   useEffect(() => {
     if (hasRehydrated && messages.length > 0) {
+      // We still save messages during the current session
       localStorage.setItem('portfolioChatMessages', JSON.stringify(messages));
       localStorage.setItem('portfolioChatUsedSuggestions', JSON.stringify(usedSuggestions));
     }
@@ -553,6 +538,25 @@ const Chatbot2: React.FC = () => {
   const getAvailableSuggestions = () => {
     return initialSuggestions.filter(suggestion => !usedSuggestions.includes(suggestion));
   };
+
+  // Clear chat on page load/unload to ensure privacy between sessions
+  useEffect(() => {
+    // Clear messages on component mount to ensure a fresh chat for each visit
+    localStorage.removeItem('portfolioChatMessages');
+    localStorage.removeItem('portfolioChatUsedSuggestions');
+    
+    // Also clear when user leaves/refreshes the page
+    const handleBeforeUnload = () => {
+      localStorage.removeItem('portfolioChatMessages');
+      localStorage.removeItem('portfolioChatUsedSuggestions');
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
