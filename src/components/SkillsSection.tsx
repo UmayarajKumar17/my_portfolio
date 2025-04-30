@@ -74,11 +74,11 @@ const SkillsSection: React.FC = () => {
       name: "AI & ML",
       icon: <Brain size={24} className="text-ai-purple pulse-animation" />,
       skills: [
-        { name: "Gen AI", level: 90, color: "#FF6B6B", icon: <Cpu size={16} /> },
-        { name: "PyTorch", level: 85, color: "#FFD93D", icon: <Cpu size={16} /> },
-        { name: "Scikit-learn", level: 95, color: "#6BCB77", icon: <Cpu size={16} /> },
-        { name: "Computer Vision", level: 80, color: "#4D96FF", icon: <Cpu size={16} /> },
-        { name: "NLP", level: 88, color: "#9B87F5", icon: <Cpu size={16} /> }
+        { name: "Gen AI", level: 70, color: "#FF6B6B", icon: <Cpu size={16} /> },
+        { name: "PyTorch", level: 75, color: "#FFD93D", icon: <Cpu size={16} /> },
+        { name: "Scikit-learn", level: 80, color: "#6BCB77", icon: <Cpu size={16} /> },
+        { name: "Computer Vision", level: 70, color: "#4D96FF", icon: <Cpu size={16} /> },
+        { name: "NLP", level: 75, color: "#9B87F5", icon: <Cpu size={16} /> }
       ]
     },
     {
@@ -96,7 +96,7 @@ const SkillsSection: React.FC = () => {
       name: "Tools",
       icon: <Server size={24} className="text-ai-purple pulse-animation" />,
       skills: [
-        { name: "Docker", level: 85, color: "#4D96FF", icon: <Server size={16} /> },
+        { name: "Docker", level: 75, color: "#4D96FF", icon: <Server size={16} /> },
         { name: "VS Code", level: 80, color: "#FFD93D", icon: <Globe size={16} /> },
         { name: "Github", level: 80, color: "#FF6B6B", icon: <Layers size={16} /> },
         { name: "Git", level: 90, color: "#6BCB77", icon: <Database size={16} /> },
