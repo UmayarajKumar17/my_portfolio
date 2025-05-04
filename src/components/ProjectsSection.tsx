@@ -87,7 +87,7 @@ const ProjectsSection: React.FC = () => {
             ref={(el) => elementsRef.current[0] = el}
             className="mb-8 md:mb-12 text-center opacity-0"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gradient">Featured Projects</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4"><span className="animated-gradient-text">Featured Projects</span></h2>
             <div className="w-20 h-1 bg-ai-purple mx-auto rounded-full"></div>
             <p className="mt-6 text-lg text-gray-300 max-w-2xl mx-auto">
               Explore some of the projects I've developed and am currently working on that showcase my interests in artificial intelligence and machine learning.

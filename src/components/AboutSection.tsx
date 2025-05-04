@@ -127,8 +127,8 @@ const AboutSection: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className={`mb-16 text-center transition-all duration-700 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gradient">
-              <span className="text-ai-purple">About Me</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <span className="animated-gradient-text">About Me</span>
             </h2>
             <div className="w-20 h-1 bg-ai-purple mx-auto rounded-full mb-6"></div>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
