@@ -200,8 +200,11 @@ export const Chatbot2: React.FC = () => {
   
   // Together AI API configuration
   const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-  const TOGETHER_API_KEY = import.meta.env.VITE_TOGETHER_AI_API_KEY || ""; // Use environment variable
+  const TOGETHER_API_KEY = import.meta.env.VITE_TOGETHER_AI_API_KEY || "";
   const TOGETHER_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free";
+  
+  // Flag to check if API key is available
+  const isApiKeyAvailable = TOGETHER_API_KEY && TOGETHER_API_KEY.length > 10;
   
   const initialSuggestions = [
     "Tell me about your AI projects",
@@ -467,6 +470,12 @@ export const Chatbot2: React.FC = () => {
   // Get AI response using Together AI API or fallback to local responses
   const getAIResponse = async (userMessage: string, chatHistory: Message[]) => {
     try {
+      // Check if API key is available, if not use fallback response
+      if (!isApiKeyAvailable) {
+        console.log("API key not available, using fallback response");
+        return getFallbackResponse(userMessage);
+      }
+      
       // Format the chat history for the API
       const formattedHistory = chatHistory.map(msg => ({
         role: msg.sender === 'user' ? 'user' : 'assistant',
@@ -499,8 +508,9 @@ export const Chatbot2: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(e => ({ error: `Failed to parse error response: ${e.message}` }));
         console.error("Together AI API error:", errorData);
+        console.error("API Status:", response.status, response.statusText);
         return getFallbackResponse(userMessage);
       }
       
