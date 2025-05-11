@@ -184,18 +184,18 @@ const CertificationsSection: React.FC = () => {
           </div>
 
           {/* Card Stack Container */}
-          <div className="relative h-[600px] max-w-4xl mx-auto">
+          <div className="relative h-[500px] sm:h-[550px] md:h-[600px] max-w-4xl mx-auto">
             {/* Navigation Buttons */}
             <button
               onClick={prevCard}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 z-20 p-3 rounded-full bg-ai-purple/20 hover:bg-ai-purple/40 transition-colors"
+              className="absolute left-0 top-1/2 -translate-y-1/2 md:-translate-x-16 z-20 p-3 rounded-full bg-ai-purple/20 hover:bg-ai-purple/40 transition-colors"
             >
               <ChevronLeft size={24} className="text-white" />
             </button>
             
             <button
               onClick={nextCard}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 z-20 p-3 rounded-full bg-ai-purple/20 hover:bg-ai-purple/40 transition-colors"
+              className="absolute right-0 top-1/2 -translate-y-1/2 md:translate-x-16 z-20 p-3 rounded-full bg-ai-purple/20 hover:bg-ai-purple/40 transition-colors"
             >
               <ChevronRight size={24} className="text-white" />
             </button>
@@ -316,7 +316,7 @@ const CertificationsSection: React.FC = () => {
               <X size={28} />
             </button>
             <div className="flex flex-col items-center justify-center w-full h-full">
-              <div className="w-full max-w-3xl h-[80vh] bg-black rounded-2xl flex items-center justify-center shadow-2xl border-4 border-ai-purple overflow-hidden relative">
+              <div className="w-full max-w-3xl h-[80vh] max-h-[90vh] bg-black rounded-2xl flex items-center justify-center shadow-2xl border-4 border-ai-purple overflow-hidden relative">
                 {selectedCertificate.images.length > 0 && !imageError[baseUrl.replace(/\/$/, '') + selectedCertificate.images[currentImageIndex]] ? (
                   <>
                     <img 

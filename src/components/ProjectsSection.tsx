@@ -100,7 +100,7 @@ const ProjectsSection: React.FC = () => {
               <div 
                 key={index}
                 ref={(el) => elementsRef.current[index + 1] = el}
-                className="glass-morphism rounded-xl overflow-hidden hover-card opacity-0 relative"
+                className="glass-morphism rounded-xl overflow-hidden hover-card opacity-0 relative mb-4 md:mb-0"
               >
                 {project.inDevelopment && (
                   <div className="absolute top-3 right-3 z-10 px-3 py-1 bg-yellow-500/80 text-black text-xs font-medium rounded-full flex items-center">
@@ -108,11 +108,11 @@ const ProjectsSection: React.FC = () => {
                     Under Development
                   </div>
                 )}
-                <div className="h-40 sm:h-48 overflow-hidden">
+                <div className="h-40 sm:h-48 md:h-52 overflow-hidden">
                   <img 
                     src={`${baseUrl}${project.image}`} 
                     alt={project.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-110"
                     loading="lazy"
                   />
                 </div>
