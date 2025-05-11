@@ -33,6 +33,7 @@ jobs:
           VITE_GROQ_API_KEY: ${{ secrets.VITE_GROQ_API_KEY }}
           VITE_GROQ_API_URL: ${{ secrets.VITE_GROQ_API_URL }}
           VITE_GROQ_MODEL: ${{ secrets.VITE_GROQ_MODEL }}
+          VITE_TOGETHER_AI_API_KEY: ${{ secrets.VITE_TOGETHER_AI_API_KEY }}
           VITE_GA_TRACKING_ID: "G-MD5CG3N4WF"
           
       - name: Create .nojekyll file

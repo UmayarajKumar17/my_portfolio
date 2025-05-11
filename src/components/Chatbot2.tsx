@@ -200,7 +200,7 @@ export const Chatbot2: React.FC = () => {
   
   // Together AI API configuration
   const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-  const TOGETHER_API_KEY = "b6a97e32ffa80cecc2e327db9e60c9662763f0fc1a5b4933c737e417bd67228e";
+  const TOGETHER_API_KEY = import.meta.env.VITE_TOGETHER_AI_API_KEY || ""; // Use environment variable
   const TOGETHER_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free";
   
   const initialSuggestions = [
