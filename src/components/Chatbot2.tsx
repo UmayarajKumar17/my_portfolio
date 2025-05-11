@@ -200,11 +200,11 @@ export const Chatbot2: React.FC = () => {
   
   // Together AI API configuration
   const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-  const TOGETHER_API_KEY = import.meta.env.VITE_TOGETHER_AI_API_KEY || "";
+  const TOGETHER_API_KEY = import.meta.env.VITE_TOGETHER_AI_API_KEY || "b6a97e32ffa80cecc2e327db9e60c9662763f0fc1a5b4933c737e417bd67228e"; // Fallback to hardcoded key if env var is missing
   const TOGETHER_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free";
   
-  // Flag to check if API key is available
-  const isApiKeyAvailable = TOGETHER_API_KEY && TOGETHER_API_KEY.length > 10;
+  // Flag to check if API key is available - removing this since we always want to use the API
+  // const isApiKeyAvailable = TOGETHER_API_KEY && TOGETHER_API_KEY.length > 10;
   
   const initialSuggestions = [
     "Tell me about your AI projects",
@@ -470,12 +470,6 @@ export const Chatbot2: React.FC = () => {
   // Get AI response using Together AI API or fallback to local responses
   const getAIResponse = async (userMessage: string, chatHistory: Message[]) => {
     try {
-      // Check if API key is available, if not use fallback response
-      if (!isApiKeyAvailable) {
-        console.log("API key not available, using fallback response");
-        return getFallbackResponse(userMessage);
-      }
-      
       // Format the chat history for the API
       const formattedHistory = chatHistory.map(msg => ({
         role: msg.sender === 'user' ? 'user' : 'assistant',
@@ -493,42 +487,61 @@ export const Chatbot2: React.FC = () => {
       console.log("Calling Together AI API with:", { model: TOGETHER_MODEL, messages: messagesForAPI });
       
       // Make API call to Together AI
-      const response = await fetch(TOGETHER_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${TOGETHER_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: TOGETHER_MODEL,
-          messages: messagesForAPI,
-          temperature: 0.9,
-          max_tokens: 2048
-        })
-      });
+      console.log("Starting API call to Together AI");
+      try {
+        const response = await fetch(TOGETHER_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${TOGETHER_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: TOGETHER_MODEL,
+            messages: messagesForAPI,
+            temperature: 0.9,
+            max_tokens: 2048
+          })
+        });
+        
+        console.log("API response received:", response.status, response.statusText);
+        console.log("Response headers:", [...response.headers.entries()]);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(e => ({ error: `Failed to parse error response: ${e.message}` }));
-        console.error("Together AI API error:", errorData);
-        console.error("API Status:", response.status, response.statusText);
-        return getFallbackResponse(userMessage);
+        if (!response.ok) {
+          try {
+            const errorData = await response.json();
+            console.error("Together AI API error:", errorData);
+            console.error("API Status:", response.status, response.statusText);
+            throw new Error(`API request failed with status ${response.status}`);
+          } catch (parseError) {
+            // If we can't parse JSON, get the raw text
+            const errorText = await response.text().catch(() => "Could not read response text");
+            console.error("Together AI API error (raw):", errorText);
+            console.error("API Status:", response.status, response.statusText);
+            throw new Error(`API request failed with status ${response.status}`);
+          }
+        }
+        
+        const data = await response.json();
+        const aiResponse = data.choices[0]?.message?.content;
+        
+        console.log("Received Together AI response:", aiResponse);
+        console.log("Together AI response length:", aiResponse?.length);
+        
+        if (!aiResponse) {
+          console.error("No response content from Together AI API");
+          return getFallbackResponse(userMessage);
+        }
+        
+        return aiResponse;
+      } catch (error) {
+        console.error("Error calling Together AI API:", error);
+        // Return an error message that can help with debugging
+        return `I'm having trouble connecting to my brain right now. Please try again in a moment. If you're a developer, please check the console for more details (Error: ${error.message}).`;
       }
-      
-      const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content;
-      
-      console.log("Received Together AI response:", aiResponse);
-      console.log("Together AI response length:", aiResponse?.length);
-      
-      if (!aiResponse) {
-        console.error("No response content from Together AI API");
-        return getFallbackResponse(userMessage);
-      }
-      
-      return aiResponse;
     } catch (error) {
       console.error("Error calling Together AI API:", error);
-      return getFallbackResponse(userMessage);
+      // Return an error message that can help with debugging
+      return `I'm having trouble connecting to my brain right now. Please try again in a moment. If you're a developer, please check the console for more details (Error: ${error.message}).`;
     }
   };
   
