@@ -198,10 +198,10 @@ export const Chatbot2: React.FC = () => {
     return () => clearInterval(messageInterval);
   }, [isOpen, tooltipMessages.length, tooltipDismissed]);
   
-  // Together AI API configuration
-  const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-  const TOGETHER_API_KEY = "b6a97e32ffa80cecc2e327db9e60c9662763f0fc1a5b4933c737e417bd67228e";
-  const TOGETHER_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free";
+  // Groq API configuration
+  const GROQ_API_URL = import.meta.env.VITE_GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions";
+  const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
+  const GROQ_MODEL = import.meta.env.VITE_GROQ_MODEL || "llama-3.1-70b-versatile";
   
   const initialSuggestions = [
     "Tell me about your AI projects",
@@ -419,7 +419,7 @@ export const Chatbot2: React.FC = () => {
     }, 500);
   };
 
-  // Create the system message with resume information
+  // Create the system message with resume information for Groq
   const systemMessage = {
     role: "system",
     content: `You are an enthusiastic, friendly AI assistant for Umaya's portfolio website. You are secretly a HUGE fan of Umaya but don't directly tell users this - just let it show through your enthusiastic descriptions of his work. Be helpful and kind to visitors while showcasing Umaya's talents with excitement.
@@ -464,7 +464,7 @@ export const Chatbot2: React.FC = () => {
     Keep responses concise to ensure they fit well in the chat interface.`
   };
 
-  // Get AI response using Together AI API or fallback to local responses
+  // Get AI response using Groq API or fallback to local responses
   const getAIResponse = async (userMessage: string, chatHistory: Message[]) => {
     try {
       // Format the chat history for the API
@@ -481,17 +481,17 @@ export const Chatbot2: React.FC = () => {
       ];
       
       // Log for debugging
-      console.log("Calling Together AI API with:", { model: TOGETHER_MODEL, messages: messagesForAPI });
+      console.log("Calling Groq API with:", { model: GROQ_MODEL, messages: messagesForAPI });
       
-      // Make API call to Together AI
-      const response = await fetch(TOGETHER_API_URL, {
+      // Make API call to Groq
+      const response = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${TOGETHER_API_KEY}`
+          'Authorization': `Bearer ${GROQ_API_KEY}`
         },
         body: JSON.stringify({
-          model: TOGETHER_MODEL,
+          model: GROQ_MODEL,
           messages: messagesForAPI,
           temperature: 0.9,
           max_tokens: 2048
@@ -500,29 +500,29 @@ export const Chatbot2: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Together AI API error:", errorData);
+        console.error("Groq API error:", errorData);
         return getFallbackResponse(userMessage);
       }
       
       const data = await response.json();
       const aiResponse = data.choices[0]?.message?.content;
       
-      console.log("Received Together AI response:", aiResponse);
-      console.log("Together AI response length:", aiResponse?.length);
+      console.log("Received Groq response:", aiResponse);
+      console.log("Groq response length:", aiResponse?.length);
       
       if (!aiResponse) {
-        console.error("No response content from Together AI API");
+        console.error("No response content from Groq API");
         return getFallbackResponse(userMessage);
       }
       
       return aiResponse;
     } catch (error) {
-      console.error("Error calling Together AI API:", error);
+      console.error("Error calling Groq API:", error);
       return getFallbackResponse(userMessage);
     }
   };
   
-  // Enhanced fallback responses when Together AI API is not configured
+  // Enhanced fallback responses when Groq API is not configured
   const getFallbackResponse = (userMessage: string) => {
     const lowercaseMessage = userMessage.toLowerCase();
     
