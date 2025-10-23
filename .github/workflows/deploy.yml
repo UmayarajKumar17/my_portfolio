@@ -37,10 +37,9 @@ jobs:
           VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
           VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
           VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
-          VITE_GROQ_API_KEY: ${{ secrets.VITE_GROQ_API_KEY }}
-          VITE_GROQ_API_URL: ${{ secrets.VITE_GROQ_API_URL }}
-          VITE_GROQ_MODEL: ${{ secrets.VITE_GROQ_MODEL }}
           VITE_GA_TRACKING_ID: "G-MD5CG3N4WF"
+          # Note: Groq API key removed from build to prevent exposure in client-side code
+          # Chatbot will use smart fallback responses until backend proxy is implemented
           
       - name: Create .nojekyll file
         run: touch dist/.nojekyll

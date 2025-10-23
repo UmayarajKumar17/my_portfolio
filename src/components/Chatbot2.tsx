@@ -199,9 +199,13 @@ export const Chatbot2: React.FC = () => {
   }, [isOpen, tooltipMessages.length, tooltipDismissed]);
   
   // Groq API configuration
+  // Note: For production, API key should be handled via backend proxy for security
   const GROQ_API_URL = import.meta.env.VITE_GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions";
   const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
   const GROQ_MODEL = import.meta.env.VITE_GROQ_MODEL || "llama-3.1-70b-versatile";
+  
+  // Check if API key is available and valid (not empty or placeholder)
+  const hasValidApiKey = GROQ_API_KEY && GROQ_API_KEY.length > 10 && !GROQ_API_KEY.includes('your_');
   
   const initialSuggestions = [
     "Tell me about your AI projects",
@@ -466,6 +470,12 @@ export const Chatbot2: React.FC = () => {
 
   // Get AI response using Groq API or fallback to local responses
   const getAIResponse = async (userMessage: string, chatHistory: Message[]) => {
+    // If no valid API key, use fallback responses immediately
+    if (!hasValidApiKey) {
+      console.log("No valid Groq API key found, using fallback responses");
+      return getFallbackResponse(userMessage);
+    }
+    
     try {
       // Format the chat history for the API
       const formattedHistory = chatHistory.map(msg => ({
@@ -481,7 +491,7 @@ export const Chatbot2: React.FC = () => {
       ];
       
       // Log for debugging
-      console.log("Calling Groq API with:", { model: GROQ_MODEL, messages: messagesForAPI });
+      console.log("Calling Groq API with model:", GROQ_MODEL);
       
       // Make API call to Groq
       const response = await fetch(GROQ_API_URL, {
