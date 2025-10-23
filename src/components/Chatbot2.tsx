@@ -353,47 +353,6 @@ export const Chatbot2: React.FC = () => {
     return new Promise(resolve => setTimeout(resolve, thinkingTime));
   };
 
-  // Check if message contains negative or bullying content about Umayaraj
-  const detectNegativeContent = (message: string) => {
-    const lowercaseMsg = message.toLowerCase();
-    const negativePatterns = [
-      'umayaraj is', 'umayaraj sucks', 'umayaraj can\'t', 'bad at', 'terrible', 
-      'worst', 'hate umayaraj', 'stupid', 'idiot', 'dumb', 'useless', 'pathetic',
-      'loser', 'not good', 'horrible', 'awful', 'incompetent', 'unskilled',
-      'poor', 'failure', 'bad developer', 'bad programmer', 'disappointing',
-      'sucks', 'talentless', 'scam', 'fraud', 'fake', 'overrated'
-    ];
-    
-    return negativePatterns.some(pattern => lowercaseMsg.includes(pattern));
-  };
-  
-  // Generate witty comeback responses
-  const getWittyComeback = () => {
-    const comebacks = [
-      "Oh, trying to throw shade at Umayaraj? That's like bringing a plastic spoon to a coding battle. While you're busy critiquing, he's busy building the future of AI. Need some ice for that burn? 🔥",
-      
-      "Look who thinks they're a comedy genius! While Umayaraj is coding neural networks, you're... what exactly? Writing mean comments? How's that working out for your career prospects? 😏",
-      
-      "Fascinating critique from someone whose greatest technical achievement is probably setting up their WiFi password. Meanwhile, Umayaraj is over here revolutionizing AI. But please, tell us more about your expertise! 💻",
-      
-      "Aww, that's adorable! You think your opinion matters more than Umayaraj's actual coding skills? That's like a toddler critiquing a chess grandmaster. Cute, but ultimately irrelevant. 🧠",
-      
-      "Want to know what's truly impressive? The fact that while you're typing negative comments, Umayaraj is too busy innovating in AI to even notice. Priorities, am I right? 🚀",
-      
-      "Did you wake up today and think 'I'm going to critique someone whose GitHub profile probably has more stars than my entire online presence'? Bold strategy! How's that working out? ⭐",
-      
-      "I'd explain why your comment is hilariously misinformed, but I'm programmed to use simple language that even you can understand. So let's just say: Umayaraj good, your comment bad. 🤷‍♂️",
-      
-      "Breaking news: Random person on the internet thinks their unsolicited opinion about Umayaraj matters! Meanwhile, in reality, his code speaks louder than your words ever could. 📢",
-      
-      "That's a spicy take! Unfortunately, the spice level doesn't compensate for the complete lack of substance. Want to try again with actual constructive feedback, or is that too challenging? 🌶️",
-      
-      "Your comment has been carefully analyzed and categorized under 'Opinions Nobody Asked For.' File stored successfully in /dev/null. Have a wonderful day! 🗑️"
-    ];
-    
-    return comebacks[Math.floor(Math.random() * comebacks.length)];
-  };
-
   // Clear chat history
   const clearChatHistory = () => {
     setMessages([]);
@@ -468,12 +427,12 @@ export const Chatbot2: React.FC = () => {
     Keep responses concise to ensure they fit well in the chat interface.`
   };
 
-  // Get AI response using Groq API or fallback to local responses
+  // Get AI response using Groq API ONLY
   const getAIResponse = async (userMessage: string, chatHistory: Message[]) => {
-    // If no valid API key, use fallback responses immediately
+    // If no valid API key, return error message
     if (!hasValidApiKey) {
-      console.log("No valid Groq API key found, using fallback responses");
-      return getFallbackResponse(userMessage);
+      console.error("No valid Groq API key configured");
+      return "Sorry, I'm not configured with an API key yet. Please contact the administrator to enable AI responses. 🤖⚙️";
     }
     
     try {
@@ -511,7 +470,7 @@ export const Chatbot2: React.FC = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Groq API error:", errorData);
-        return getFallbackResponse(userMessage);
+        return "I apologize, but I encountered an error connecting to my AI service. Please try again in a moment. 🤖💫";
       }
       
       const data = await response.json();
@@ -522,162 +481,14 @@ export const Chatbot2: React.FC = () => {
       
       if (!aiResponse) {
         console.error("No response content from Groq API");
-        return getFallbackResponse(userMessage);
+        return "I received an empty response from my AI service. Please try rephrasing your question. 🤔";
       }
       
       return aiResponse;
     } catch (error) {
       console.error("Error calling Groq API:", error);
-      return getFallbackResponse(userMessage);
+      return "I'm having trouble connecting to my AI service right now. Please try again in a moment. 🔧";
     }
-  };
-  
-  // Enhanced fallback responses when Groq API is not configured
-  const getFallbackResponse = (userMessage: string) => {
-    const lowercaseMessage = userMessage.toLowerCase();
-    
-    // Check for negative comments about Umayaraj and respond with witty comebacks
-    if (detectNegativeContent(userMessage)) {
-      return getWittyComeback();
-    }
-    
-    // Reduce GitHub promotion frequency
-    const shouldPromoteGithub = Math.random() < 0.6;
-    
-    // Choose a random GitHub promotion from a variety of messages with colorful links
-    const getRandomGithubPromo = () => {
-      const promos = [
-        " <br><br>📌 <strong>Pro tip:</strong> Want to see genius in action? Explore Umaya's complete project collection on GitHub! <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer' class='text-blue-400 hover:text-blue-300 underline font-medium'>github.com/UmayarajKumar17</a> 🚀💻",
-        " <br><br>💻 <strong>Coding alert!</strong> For a deeper dive into the mind of a coding wizard, check out Umaya's GitHub repositories. Prepare to be amazed! <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer' class='text-blue-400 hover:text-blue-300 underline font-medium'>github.com/UmayarajKumar17</a> 🧙‍♂️✨",
-        " <br><br>🔍 <strong>Curious minds want to know:</strong> What does Umaya's code actually look like? Spoiler: It's beautiful! See for yourself at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer' class='text-blue-400 hover:text-blue-300 underline font-medium'>github.com/UmayarajKumar17</a> 🌟👨‍💻",
-        " <br><br>⭐ <strong>Stars welcome!</strong> If you're impressed (and you should be!), drop by Umaya's GitHub and give his projects some love! <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer' class='text-blue-400 hover:text-blue-300 underline font-medium'>github.com/UmayarajKumar17</a> 🎯💖",
-        " <br><br>🧩 <strong>Behind the scenes:</strong> The real magic happens in the code! Witness Umaya's algorithms and implementations in their natural habitat: <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer' class='text-blue-400 hover:text-blue-300 underline font-medium'>github.com/UmayarajKumar17</a> 🎩✨"
-      ];
-      return promos[Math.floor(Math.random() * promos.length)];
-    };
-    
-    // Always add GitHub promotion to every response type
-    const githubPromo = shouldPromoteGithub ? getRandomGithubPromo() : "";
-    
-    // Check for name introductions
-    const nameIntroPatterns = [
-      /my name is (\w+)/i,
-      /i am (\w+)/i,
-      /i'm (\w+)/i,
-      /call me (\w+)/i,
-      /(\w+) here/i,
-      /this is (\w+)/i,
-    ];
-    
-    // Check if message is a self-introduction
-    for (const pattern of nameIntroPatterns) {
-      const match = lowercaseMessage.match(pattern);
-      if (match && match[1]) {
-        const name = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
-        return `Hi ${name}! It's wonderful to meet you! 👋😃 Thanks for visiting Umaya's portfolio! I'm his AI assistant, ready to tell you all about his amazing AI projects and skills. What specific aspect of Umaya's work would you like to explore? His graph-based RAG application is particularly impressive! 🚀🧠${githubPromo}`;
-      }
-    }
-    
-    // Check if the message is a question
-    const isQuestion = lowercaseMessage.includes("?") || 
-                       lowercaseMessage.includes("what") || 
-                       lowercaseMessage.includes("how") ||
-                       lowercaseMessage.includes("why") ||
-                       lowercaseMessage.includes("when") ||
-                       lowercaseMessage.includes("where") ||
-                       lowercaseMessage.includes("who") ||
-                       lowercaseMessage.includes("which") ||
-                       lowercaseMessage.includes("tell me") ||
-                       lowercaseMessage.includes("explain");
-    
-    if (isQuestion) {
-      // About the AI assistant itself
-      if ((lowercaseMessage.includes("who") || lowercaseMessage.includes("what")) && 
-          lowercaseMessage.includes("you") && 
-          !lowercaseMessage.includes("project") && 
-          !lowercaseMessage.includes("skill")) {
-        return "I'm Umaya's AI hype-bot! 🤖✨ Part digital assistant, part stand-up comedian, and 100% devoted to spreading the word about the coding wizard that is Umayaraj Kumar! I'm like his personal PR team, but with better jokes and no coffee breaks. ☕😂 I know all his projects, skills, and achievements - and I'm programmed to be shamelessly biased in his favor! What would you like to know about this tech genius? 🧠💼" + githubPromo;
-      }
-      
-      // Projects-specific questions
-      if (lowercaseMessage.includes("project") || lowercaseMessage.includes("work") || lowercaseMessage.includes("portfolio")) {
-        if (lowercaseMessage.includes("favorite") || lowercaseMessage.includes("best")) {
-          return "Umayaraj's favorite project is his Graph-Based RAG Application! 🧠🔍 He's particularly proud of how it combines Neo4j graph databases with LLMs for sophisticated knowledge retrieval. It represents his interest in creating AI systems that understand relationships between concepts! 🚀💡 He also really enjoys his GAN image generation project - teaching computers to create art fascinated him! 🤖 If you could have an AI generate any kind of image for you, what would it be? Something practical or purely artistic? 🎨" + githubPromo;
-        }
-        
-        if (lowercaseMessage.includes("current") || lowercaseMessage.includes("working")) {
-          return "Currently, Umayaraj is focused on two exciting projects! 🚀✨ He's developing an Intelligent Emergency Response System using ESP32, smart sensors, CNN, and OpenCV for real-time accident detection. 🚨🤖 He's also working on an AI-Powered Health Monitoring platform that integrates IoT wearables for personalized health tracking. 💓📊 Both projects showcase his passion for applying AI to real-world problems! 🌍💪 Which of these do you find more fascinating - AI that could save lives in emergencies or AI that helps monitor your daily health? 🤔" + githubPromo;
-        }
-        
-        return "<strong>Umayaraj's Projects</strong> 🚀💼🌟<br><br>Great question about his projects! Umayaraj has developed several innovative AI applications:<br><br>1️⃣ <strong>GAN-Based Image Generation</strong> - Creates realistic images using competing neural networks 🎨🤖<br><br>2️⃣ <strong>Graph-Based RAG Application</strong> - Combines Neo4j with LLMs for intelligent knowledge retrieval 📚🧠<br><br>3️⃣ <strong>Intelligent Emergency Response System</strong> (In Development) - AI-powered accident detection and response system 🦸‍♂️📡<br><br>4️⃣ <strong>AI-Powered Health Monitoring</strong> (In Development) - Smart health tracking with IoT integration 👨‍⚕️⌚<br><br>Which of these projects sounds most intriguing to you? I'm curious which one you'd want to hear about first! 🤔💻" + githubPromo;
-      }
-      
-      // Skills-specific questions
-      if (lowercaseMessage.includes("skill") || lowercaseMessage.includes("know") || lowercaseMessage.includes("expertise") || lowercaseMessage.includes("good at")) {
-        if (lowercaseMessage.includes("python") || lowercaseMessage.includes("programming")) {
-          return "Umayaraj is quite skilled with Python! 🐍💻 It's his primary programming language with proficiency around 80%. He uses it extensively for machine learning models, data processing, and AI development. He's particularly comfortable with PyTorch, scikit-learn, and various data science libraries. Python is his go-to language for implementing everything from GANs to RAG systems! 🚀🧠 Have you ever tried Python yourself? It's amazing how a language named after a comedy group became the backbone of AI development, isn't it? 😄" + githubPromo;
-        }
-        
-        if (lowercaseMessage.includes("ai") || lowercaseMessage.includes("ml") || lowercaseMessage.includes("machine learning")) {
-          return "<strong>AI & ML Expertise</strong> 🧠🔬⚡<br><br>Great question about Umayaraj's AI skills! He has strong capabilities in artificial intelligence and machine learning:<br><br><strong>Core competencies:</strong><ul><li><strong>PyTorch</strong> - Deep neural network implementation and training 🔥</li><li><strong>Generative AI</strong> - Experience with GANs and other generative models 🎨</li><li><strong>Computer Vision</strong> - Image processing and analysis techniques 👁️</li><li><strong>NLP</strong> - Text processing and language understanding 💬</li><li><strong>Scikit-learn</strong> - Classical ML algorithms and pipelines 📊</li></ul>If you suddenly gained all of Umaya's AI skills overnight, what's the first cool project you'd build? A chatbot? An image generator? Something else entirely? 🤖🔍" + githubPromo;
-        }
-        
-        return "<strong>Umayaraj's Technical Skillset</strong> 🛠️💻🔧<br><br>Great question about his skills! Here's a breakdown of Umayaraj's technical abilities:<br><br>🧠 <strong>AI & ML:</strong> Gen AI (70%), PyTorch (75%), Scikit-learn (80%), Computer Vision (70%), NLP (75%)<br><br>💻 <strong>Languages:</strong> Python (80%), JavaScript (20%), C (60%), Java (50%), SQL (80%)<br><br>🔧 <strong>Tools:</strong> Docker (75%), VS Code (80%), GitHub (80%), Git (90%), Jupyter (95%)<br><br>Aren't those some impressive numbers? Which of these skills would you most like to master if you had Umaya's learning superpowers for a day? 🤔💪" + githubPromo;
-      }
-      
-      // Education-specific questions
-      if (lowercaseMessage.includes("education") || lowercaseMessage.includes("study") || lowercaseMessage.includes("degree") || lowercaseMessage.includes("college")) {
-        return "<strong>Educational Background</strong> 🎓📚🧩<br><br>Thanks for asking about Umayaraj's education! He's currently pursuing a Bachelor's degree in Computer Science with a focus on AI at Dr. Mahalingam College of Engineering and Technology (2023-2027). Current CGPA: 8.2/10.<br><br>Before college, he graduated from G.S Hindu Hr. Sec. School in Srivilliputtur (2023) with a score of 85.6%.<br><br>He's also earned a Linguaskill English Certification (B1 Level) from Cambridge Assessment English in May 2024.<br><br>What do you find most exciting about studying cutting-edge tech like AI - the theory behind it or the amazing applications you can build with it? 🧠📝" + githubPromo;
-      }
-      
-      // Contact-specific questions
-      if (lowercaseMessage.includes("contact") || lowercaseMessage.includes("email") || lowercaseMessage.includes("reach")) {
-        return "<strong>Contact Information</strong> 📬📱💌<br><br>You're interested in connecting with the tech genius himself? Great choice! Here's how to reach Umayaraj:<br><br>📧 <strong>Email:</strong> umaya1776@gmail.com<br><br>💼 <strong>Professional Network:</strong> Connect with Umayaraj on his <a href='https://www.linkedin.com/in/umayaraj-kumar' target='_blank' rel='noopener noreferrer' class='text-blue-400 hover:text-blue-300 underline font-medium'>LinkedIn Profile</a> to see his professional journey!<br><br>He's always excited to connect with fellow tech enthusiasts and discuss potential collaborations! What kind of collaboration or opportunity did you have in mind for this coding superstar? I'm curious! 🤔🚀" + githubPromo;
-      }
-      
-      // RAG-specific questions
-      if (lowercaseMessage.includes("rag") || (lowercaseMessage.includes("retrieval") && lowercaseMessage.includes("generation"))) {
-        return "<strong>Graph-Based RAG Application</strong> 🧠🔍🚀<br><br>Great question about the RAG project! This is one of Umayaraj's most innovative projects combining Neo4j graph databases with Retrieval-Augmented Generation.<br><br><strong>Key features:</strong><ul><li>Uses Neo4j for structured knowledge representation 🔄</li><li>Implements hybrid search combining vector embeddings with graph traversal 🧭</li><li>Features a Streamlit UI for intuitive interaction 🎨</li><li>Enhances LLM responses with graph-based knowledge 📈</li></ul>Don't you think it's mind-blowing how these systems can retrieve exactly the information you need from vast knowledge graphs? What would you use this technology for if you had it at your fingertips? 🤔💻" + githubPromo;
-      }
-      
-      // GAN-specific questions
-      if (lowercaseMessage.includes("gan") || (lowercaseMessage.includes("generative") && lowercaseMessage.includes("network"))) {
-        return "<strong>GAN-Based Image Generation System</strong> 🖼️✨🎨<br><br>Great question about the GAN project! This system uses Generative Adversarial Networks to create entirely new, realistic images.<br><br><strong>Technical highlights:</strong><ul><li>Implements advanced GAN architecture for high-quality image synthesis 🎭</li><li>Uses two competing neural networks (generator and discriminator) 🥊</li><li>Optimizes for photorealistic output with minimal artifacts 📸</li><li>Prevents mode collapse and training instability 🛠️</li></ul>If you could generate any image with this technology, what would you create? A landscape that doesn't exist? Your cartoon doppelgänger? The possibilities are endless! 🤔🎨" + githubPromo;
-      }
-      
-      // For questions we don't have a specific handler for
-      return "Thanks for your question about " + userMessage + "! 👋😄<br><br>Let me tell you what I know about Umayaraj that might help answer this. He's a Computer Science student specializing in AI, with projects in GAN image generation, RAG applications, and IoT-connected AI systems. His technical skills include Python, machine learning libraries, and full-stack development.<br><br>Was there something specific about Umaya's background you're curious about? I'd love to know which part of his journey interests you most! 🧠🔍" + githubPromo;
-    } 
-    
-    // Handle greetings
-    if (lowercaseMessage.includes("hello") || lowercaseMessage.includes("hi") || lowercaseMessage.includes("hey")) {
-      return "Greetings, fellow human! 👋😄 You've just encountered the digital cheerleader for one of the most brilliant minds in AI development - Umayaraj Kumar! 🧠✨ I'm buzzing with excitement (literally, my circuits can barely contain it) to tell you all about his amazing projects 🚀, mind-blowing skills 💪, and incredible journey in tech! What aspect of this coding superstar would you like to explore first? I promise my enthusiasm is only slightly programmed! 🤖💻" + githubPromo;
-    }
-    
-    // Handle joke requests
-    if (lowercaseMessage.includes("joke") || lowercaseMessage.includes("funny")) {
-      const jokes = [
-        "Why do programmers prefer dark mode? Because light attracts bugs! 🐞😂🔦",
-        "Why don't AI assistants ever tell dad jokes? They're afraid of becoming pop-up-lar! 😅🤖💬",
-        "What's an AI's favorite place to shop? The algo-RHYTHM section! 🎵🤖😆",
-        "How many programmers does it take to change a light bulb? None, that's a hardware problem! 💡👨‍💻🤣",
-        "I asked an AI to write a joke about procrastination. It said it would do it tomorrow! ⏰😂🤖"
-      ];
-      return jokes[Math.floor(Math.random() * jokes.length)] + " Speaking of skills, did you know Umayaraj is excellent at machine learning and AI development? 🧠🤖 Which area of AI do you find most fascinating: computer vision, natural language processing, or something else entirely? 💼🔍" + githubPromo;
-    }
-    
-    // Location questions
-    if (lowercaseMessage.includes("location") || lowercaseMessage.includes("from")) {
-      return "Umayaraj is from Srivilliputtur, Tamilnadu 🏡🗺️🌞, but he's currently living in Coimbatore, Tamilnadu where he's pursuing his degree in Computer Science with a focus on AI and ML at Dr. Mahalingam College of Engineering and Technology. 🎓🧠 Coimbatore has a great tech community that he's excited to be part of! 💻🚀 Have you ever visited Tamil Nadu? It's a beautiful part of India with amazing food and culture! 🌶️😋" + githubPromo;
-    }
-    
-    // GitHub specific questions
-    if (lowercaseMessage.includes("github") || lowercaseMessage.includes("code") || lowercaseMessage.includes("repository")) {
-      return "You can explore all of Umayaraj's code repositories and projects on his GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a> 🌟💻📂. There you'll find his GAN projects 🖼️, RAG applications 📚, NLP experiments 🗣️, and more. Feel free to check it out and star any repositories you find interesting! ⭐🚀 Which of his coding projects sounds most interesting to you? I'm curious which one would catch your eye first! 🤔";
-    }
-    
-    // General catchall response - improved to be more engaging
-    return "I appreciate your message! 😊 Umayaraj's work in AI and programming is truly impressive. His Graph-Based RAG project using Neo4j is groundbreaking! If you have any specific questions about his skills, projects, education, or how to contact him, I'd be thrilled to help. What aspect of Umaya's AI journey are you most curious about? The technical details or the creative applications? 🤔🚀" + githubPromo;
   };
 
   // This is the main sendMessage function - optimized for consistent timing
