@@ -37,9 +37,9 @@ jobs:
           VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
           VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
           VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
-          VITE_GROQ_API_KEY: ${{ secrets.VITE_GROQ_API_KEY || '' }}
-          VITE_GROQ_API_URL: ${{ secrets.VITE_GROQ_API_URL || 'https://api.groq.com/openai/v1/chat/completions' }}
-          VITE_GROQ_MODEL: ${{ secrets.VITE_GROQ_MODEL || 'openai/gpt-oss-120b' }}
+          VITE_GROQ_API_KEY: ${{ secrets.VITE_GROQ_API_KEY }}
+          VITE_GROQ_API_URL: ${{ secrets.VITE_GROQ_API_URL }}
+          VITE_GROQ_MODEL: ${{ secrets.VITE_GROQ_MODEL }}
           VITE_GA_TRACKING_ID: "G-MD5CG3N4WF"
           
       - name: Create .nojekyll file
