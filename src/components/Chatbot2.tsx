@@ -202,7 +202,7 @@ export const Chatbot2: React.FC = () => {
   // Note: For production, API key should be handled via backend proxy for security
   const GROQ_API_URL = import.meta.env.VITE_GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions";
   const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
-  const GROQ_MODEL = import.meta.env.VITE_GROQ_MODEL || "llama-3.1-70b-versatile";
+  const GROQ_MODEL = import.meta.env.VITE_GROQ_MODEL || "llama-3.3-70b-versatile";
   
   // Check if API key is available and valid (not empty or placeholder)
   const hasValidApiKey = GROQ_API_KEY && GROQ_API_KEY.length > 10 && !GROQ_API_KEY.includes('your_');

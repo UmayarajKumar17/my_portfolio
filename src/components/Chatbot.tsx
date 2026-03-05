@@ -1,12 +1,47 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Send, X, Maximize2, Minimize2, MessageCircle, Hash, Zap } from 'lucide-react';
 
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY as string;
+const GROQ_MODEL = import.meta.env.VITE_GROQ_MODEL || 'llama-3.3-70b-versatile';
+
+const SYSTEM_PROMPT = `You are a helpful AI assistant embedded in Umayaraj Kumar's personal portfolio website. Your role is to answer questions about Umayaraj and his work.
+
+Here is key information about Umayaraj Kumar:
+- Full Name: Umayaraj Kumar
+- Based in: Coimbatore, Tamilnadu, India
+- Email: umaya1776@gmail.com
+- GitHub: https://github.com/UmayarajKumar17
+- Role: AI/ML Student & Developer
+
+Projects:
+1. GAN-Based Image Generation System – Creates realistic images using Generative Adversarial Networks (deep learning).
+2. Graph-Based RAG Application – Uses Neo4j and Streamlit for Retrieval-Augmented Generation.
+3. Emergency Response System – In progress.
+4. Health Monitoring Platform – In progress.
+
+Skills:
+- Machine Learning, Deep Learning, NLP, Computer Vision
+- Python (primary), JavaScript, C, Java
+- Tools: Git, GitHub, cloud platforms
+
+Experience:
+- Currently a student seeking internship/entry-level AI roles
+- Applies knowledge through personal projects and coursework
+- Interested in collaborating on AI/ML projects
+
+Keep your answers concise, friendly, and relevant to the portfolio. If asked something unrelated to Umayaraj's portfolio, politely steer back to portfolio topics. Do not use raw HTML in responses — use plain text only.`;
+
 interface Message {
   text: string;
   sender: 'bot' | 'user';
   timestamp: Date;
   isAnimated?: boolean;
   isStreaming?: boolean;
+}
+
+interface GroqMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
 }
 
 // TypeWriter component for streaming text effect
@@ -51,6 +86,7 @@ const Chatbot: React.FC = () => {
   const [streamingMessageIndex, setStreamingMessageIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
+  const conversationHistory = useRef<GroqMessage[]>([]);
   
   const initialSuggestions = [
     "Tell me about your projects",
@@ -116,13 +152,7 @@ const Chatbot: React.FC = () => {
     setShowSuggestions(false);
   };
 
-  const simulateThinking = () => {
-    setIsBotThinking(true);
-    const thinkingTime = Math.random() * 1000 + 500; // Random time between 500ms and 1500ms
-    return new Promise(resolve => setTimeout(resolve, thinkingTime));
-  };
-
-  const sendMessage = (overrideMessage?: string) => {
+  const sendMessage = async (overrideMessage?: string) => {
     const messageToSend = overrideMessage || message;
     if (!messageToSend.trim()) return;
 
@@ -134,58 +164,68 @@ const Chatbot: React.FC = () => {
 
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setMessage('');
-    setIsTyping(true);
+    setIsBotThinking(true);
+    setIsTyping(false);
 
-    // Simulate bot response with "thinking" animation first
-    simulateThinking().then(() => {
-      setIsBotThinking(false);
-      
-      // Process the message to determine the response
-      const botResponses: { [key: string]: string } = {
-        'project': "I'm working on several exciting AI projects! I've completed two significant ones: a GAN-Based Image Generation System that can create realistic images using neural networks, and a Graph-Based RAG Application using Neo4j and Streamlit. I'm also developing an Emergency Response System and Health Monitoring Platform that are currently in progress. These projects help me apply what I'm learning in practical ways. If you want to explore more of my projects, visit my GitHub at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>",
-        'skill': "I'm developing my technical skills in machine learning, deep learning, NLP, and computer vision. I'm proficient with Python and also comfortable with JavaScript, C, and Java. I use tools like Git, GitHub, and various cloud platforms as I continue to expand my knowledge. I'm always eager to learn new technologies!",
-        'contact': "You can reach me at umaya1776@gmail.com if you'd like to connect or discuss potential opportunities. I'm currently based in Coimbatore, Tamilnadu, and I'm always open to chatting about AI, tech, or potential collaborations!",
-        'experience': "I'm currently a student eagerly seeking opportunities to gain hands-on experience in AI development. While I don't have professional work experience yet, I've been applying my knowledge through personal projects and coursework. I'm particularly interested in internships where I can contribute while continuing to learn from experienced professionals.",
-        'hello': "Hello there! I'm excited to connect with you. I'm Umayaraj's AI assistant - how can I help you learn more about his projects and skills today?",
-        'hi': "Hi! Great to meet you. I'm your AI assistant - feel free to ask about Umayaraj's projects, skills, or educational background!",
-        'github': "You can explore all my projects and code repositories on my GitHub page at <a href='https://github.com/UmayarajKumar17' target='_blank' rel='noopener noreferrer'>https://github.com/UmayarajKumar17</a>. There you'll find my work with GANs, RAG applications, and other AI experiments!",
-        'email': "My email address is umaya1776@gmail.com. Feel free to reach out if you have any questions or would like to discuss AI, projects, or potential collaborations!",
-      };
+    // Append user message to conversation history
+    conversationHistory.current.push({ role: 'user', content: messageToSend });
 
-      const lowercaseMessage = messageToSend.toLowerCase();
-      let responseText = '';
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...conversationHistory.current,
+          ],
+          max_tokens: 512,
+          temperature: 0.7,
+        }),
+      });
 
-      // Check for keyword matches
-      for (const [keyword, response] of Object.entries(botResponses)) {
-        if (lowercaseMessage.includes(keyword)) {
-          responseText = response;
-          break;
-        }
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData?.error?.message || `HTTP ${response.status}`);
       }
 
-      // Default response if no keywords matched
-      if (!responseText) {
-        responseText = "Thanks for reaching out! I appreciate your interest. Could you tell me more about what you're looking for? I'd be happy to discuss my projects, skills, or experience in more detail.";
-      }
+      const data = await response.json();
+      const responseText: string = data.choices?.[0]?.message?.content?.trim() ||
+        "I'm sorry, I couldn't generate a response. Please try again.";
 
-      // Add the bot message with streaming flag
+      // Save assistant reply to history
+      conversationHistory.current.push({ role: 'assistant', content: responseText });
+
       const botMessage: Message = {
         text: responseText,
         sender: 'bot',
         timestamp: new Date(),
         isAnimated: true,
-        isStreaming: true
+        isStreaming: true,
       };
 
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-      setStreamingMessageIndex(messages.length);
+      setMessages((prevMessages) => {
+        const updated = [...prevMessages, botMessage];
+        setStreamingMessageIndex(updated.length - 1);
+        return updated;
+      });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      const errorMessage: Message = {
+        text: `⚠️ Sorry, I encountered an error: ${errorMsg}. Please try again.`,
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setIsBotThinking(false);
       setIsTyping(false);
-      
-      // Show suggestions again after bot responds
-      setTimeout(() => {
-        setShowSuggestions(true);
-      }, 1000);
-    });
+      setTimeout(() => setShowSuggestions(true), 1000);
+    }
   };
 
   const handleStreamingComplete = () => {
