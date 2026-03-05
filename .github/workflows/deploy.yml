@@ -27,8 +27,7 @@ jobs:
       - name: Debug environment variables
         run: |
           echo "Checking environment variables..."
-          echo "VITE_GROQ_API_KEY exists: ${{ secrets.VITE_GROQ_API_KEY != '' }}"
-          echo "VITE_GROQ_API_URL exists: ${{ secrets.VITE_GROQ_API_URL != '' }}"
+          echo "VITE_CHAT_API_URL exists: ${{ secrets.VITE_CHAT_API_URL != '' }}"
           echo "VITE_GROQ_MODEL exists: ${{ secrets.VITE_GROQ_MODEL != '' }}"
         
       - name: Build
@@ -37,8 +36,9 @@ jobs:
           VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
           VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
           VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
-          VITE_GROQ_API_KEY: ${{ secrets.VITE_GROQ_API_KEY }}
-          VITE_GROQ_API_URL: ${{ secrets.VITE_GROQ_API_URL }}
+          # VITE_GROQ_API_KEY is intentionally NOT set here — key must never be baked into the bundle.
+          # Instead, set VITE_CHAT_API_URL to your Vercel proxy URL in GitHub Secrets.
+          VITE_CHAT_API_URL: ${{ secrets.VITE_CHAT_API_URL }}
           VITE_GROQ_MODEL: ${{ secrets.VITE_GROQ_MODEL }}
           VITE_GA_TRACKING_ID: "G-MD5CG3N4WF"
           
