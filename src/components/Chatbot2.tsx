@@ -198,16 +198,12 @@ export const Chatbot2: React.FC = () => {
     return () => clearInterval(messageInterval);
   }, [isOpen, tooltipMessages.length, tooltipDismissed]);
   
-  // API configuration
-  // VITE_CHAT_API_URL = Vercel proxy endpoint (safe to expose — it's just a URL, not a secret)
-  // VITE_GROQ_API_KEY = only used for local development direct calls (never set in CI/build)
-  const CHAT_API_URL = import.meta.env.VITE_CHAT_API_URL || "https://api.groq.com/openai/v1/chat/completions";
+  // Groq API configuration — key is injected at build time via GitHub Secrets (VITE_GROQ_API_KEY)
+  const CHAT_API_URL = "https://api.groq.com/openai/v1/chat/completions";
   const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
   const GROQ_MODEL = import.meta.env.VITE_GROQ_MODEL || "llama-3.3-70b-versatile";
 
-  // hasValidApiKey: true if we have a direct key (local dev) OR a proxy URL (production)
-  const hasValidApiKey = (GROQ_API_KEY && GROQ_API_KEY.length > 10 && !GROQ_API_KEY.includes('your_'))
-    || (import.meta.env.VITE_CHAT_API_URL && import.meta.env.VITE_CHAT_API_URL.length > 0);
+  const hasValidApiKey = GROQ_API_KEY && GROQ_API_KEY.length > 10 && !GROQ_API_KEY.includes('your_');
   
   const initialSuggestions = [
     "Tell me about your AI projects",
@@ -454,17 +450,12 @@ export const Chatbot2: React.FC = () => {
       // Log for debugging
       console.log("Calling Groq API with model:", GROQ_MODEL);
       
-      // If a direct API key is available (local dev), call Groq directly.
-      // In production (GitHub Pages), call the Vercel proxy — no key in the request.
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (GROQ_API_KEY && GROQ_API_KEY.length > 10) {
-        headers['Authorization'] = `Bearer ${GROQ_API_KEY}`;
-      }
-
-      // Make API call
       const response = await fetch(CHAT_API_URL, {
         method: 'POST',
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+        },
         body: JSON.stringify({
           model: GROQ_MODEL,
           messages: messagesForAPI,
